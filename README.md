@@ -179,28 +179,28 @@ Options:
 ┌─────────────────────────────────────────────────────────┐
 │        Windows Event Automation Engine v0.1.1           │
 ├─────────────────────────────────────────────────────────┤
-│  CLI (clap) → Config (TOML) → Engine                  │
-│                    ↑              │                      │
-│                    │    Config    │                      │
-│                    └──── Watcher ←┘                      │
+│  CLI (clap) → Config (TOML) → Engine                    │
+│                    ↑              │                     │
+│                    │    Config    │                     │
+│                    └──── Watcher ←┘                     │
 │                                                         │
 │  Event Sources:                                         │
 │  ├── File Watcher (notify crate)                        │
-│  ├── Window Watcher (Win32 API)                        │
+│  ├── Window Watcher (Win32 API)                         │
 │  ├── Process Monitor (EnumProcesses)                    │
-│  └── Registry Monitor (RegNotifyChangeKeyValue)        │
+│  └── Registry Monitor (RegNotifyChangeKeyValue)         │
 │                                                         │
-│  Event Bus (tokio mpsc channels)                       │
+│  Event Bus (tokio mpsc channels)                        │
 │                                                         │
 │  Rule Engine                                            │
-│  ├── File Pattern Matcher                              │
-│  ├── Event Kind Matcher                                │
-│  └── Composite Matcher (AND/OR)                        │
+│  ├── File Pattern Matcher                               │
+│  ├── Event Kind Matcher                                 │
+│  └── Composite Matcher (AND/OR)                         │
 │                                                         │
 │  Action Executor                                        │
-│  ├── Execute Command                                   │
-│  ├── PowerShell Script                                 │
-│  ├── Log Message                                       │
+│  ├── Execute Command                                    │
+│  ├── PowerShell Script                                  │
+│  ├── Log Message                                        │
 │  └── HTTP Request (extensible)                          │
 └─────────────────────────────────────────────────────────┘
 ```
