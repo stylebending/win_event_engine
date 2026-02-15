@@ -173,15 +173,15 @@ Options:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│        Windows Event Automation Engine v0.1.0            │
+│        Windows Event Automation Engine v0.1.0           │
 ├─────────────────────────────────────────────────────────┤
-│  CLI (clap) → Config (TOML) → Engine                     │
+│  CLI (clap) → Config (TOML) → Engine                    │
 │                                                         │
 │  Event Sources:                                         │
 │  ├── File Watcher (notify crate)                        │
 │  ├── Window Watcher (Win32 API)                         │
 │  ├── Process Monitor (EnumProcesses)                    │
-│  └── Registry Monitor (RegNotifyChangeKeyValue)        │
+│  └── Registry Monitor (RegNotifyChangeKeyValue)         │
 │                                                         │
 │  Event Bus (tokio mpsc channels)                        │
 │                                                         │
@@ -194,7 +194,7 @@ Options:
 │  ├── Execute Command                                    │
 │  ├── PowerShell Script                                  │
 │  ├── Log Message                                        │
-│  └── HTTP Request (extensible)                            │
+│  └── HTTP Request (extensible)                          │
 └─────────────────────────────────────────────────────────┘
 ```
 
