@@ -1,0 +1,114 @@
+# Windows Event Automation Engine Configuration Example
+# Place this file in the project root or a 'rules/' directory
+
+[engine]
+event_buffer_size = 1000
+log_level = "info"
+
+# Rule 1: Monitor Downloads folder for new executables
+[[rules]]
+name = "executable_download_alert"
+description = "Alert when executable files are downloaded"
+enabled = true
+
+[rules.trigger]
+type = "file_created"
+path = "C:/Users/*/Downloads"
+pattern = "*.exe"
+recursive = false
+
+[rules.action]
+type = "log"
+message = "WARNING: Executable downloaded to Downloads folder"
+level = "warn"
+
+# Rule 2: Monitor log files for modifications
+[[rules]]
+name = "log_file_modified"
+description = "Track when log files are modified"
+enabled = true
+
+[rules.trigger]
+type = "file_modified"
+path = "C:/Logs"
+pattern = "*.log"
+recursive = true
+
+[rules.action]
+type = "execute"
+command = "powershell.exe"
+args = ["-Command", "Get-Content $env:EVENT_PATH | Select-Object -Last 10"]
+
+# Rule 3: PowerShell script on file creation
+[[rules]]
+name = "run_analysis_script"
+description = "Run analysis when CSV files are created"
+enabled = true
+
+[rules.trigger]
+type = "file_created"
+path = "C:/Data"
+pattern = "*.csv"
+recursive = false
+
+[rules.action]
+type = "powershell"
+script = """
+    $file = $env:EVENT_PATH
+    Write-Host "Processing file: $file"
+    # Add your analysis logic here
+"""
+
+# Rule 4: Timer-based cleanup
+[[rules]]
+name = "hourly_cleanup"
+description = "Run cleanup every hour"
+enabled = true
+
+[rules.trigger]
+type = "timer"
+interval_seconds = 3600
+
+[rules.action]
+type = "execute"
+command = "cleanup.bat"
+working_dir = "C:/Scripts"
+
+# Rule 5: HTTP webhook notification
+[[rules]]
+name = "webhook_on_critical"
+description = "Send webhook when critical files change"
+enabled = true
+
+[rules.trigger]
+type = "file_modified"
+path = "C:/Critical"
+pattern = "*.config"
+
+[rules.action]
+type = "http_request"
+url = "https://hooks.example.com/events"
+method = "POST"
+headers = { "Authorization" = "Bearer YOUR_TOKEN", "Content-Type" = "application/json" }
+body = '{"event": "file_modified", "path": "{{EVENT_PATH}}"}'
+
+# Rule 6: Multiple actions with composite
+[[rules]]
+name = "backup_and_notify"
+description = "Backup file and send notification"
+enabled = true
+
+[rules.trigger]
+type = "file_modified"
+path = "C:/Important"
+pattern = "*.docx"
+
+[[rules.action]]
+type = "execute"
+command = "robocopy"
+args = ["C:/Important", "D:/Backup", "*.docx", "/MIR"]
+
+[[rules.action]]
+type = "notify"
+title = "File Backed Up"
+message = "Document has been backed up to D:/Backup"

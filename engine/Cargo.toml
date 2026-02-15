@@ -1,0 +1,25 @@
+[package]
+name = "engine"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+uuid = { version = "1", features = ["v4"] }
+async-trait = "0.1"
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"
+glob = "0.3"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt"] }
+notify = "6"
+clap = { version = "4", features = ["derive"] }
+windows = { version = "0.52", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging", "Win32_UI_Accessibility", "Win32_System_Threading", "Win32_System_ProcessStatus", "Win32_System_Registry", "Win32_Security"] }
+
+engine_core = { path = "../engine_core" }
+bus = { path = "../bus" }
+rules = { path = "../rules" }
+actions = { path = "../actions" }
+
+[dev-dependencies]
+tempfile = "3"

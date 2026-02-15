@@ -1,0 +1,77 @@
+# Windows Event Automation Engine - Sample Configuration
+# Place this file as 'config.toml' in the project root
+
+[engine]
+event_buffer_size = 1000
+log_level = "info"
+
+# File system watcher - monitor downloads for executable files
+[[sources]]
+name = "downloads_watcher"
+type = "file_watcher"
+paths = ["C:/Users/*/Downloads"]
+pattern = "*.exe"
+recursive = false
+enabled = true
+
+# Window watcher - track application focus
+[[sources]]
+name = "app_focus_tracker"
+type = "window_watcher"
+enabled = false  # Disabled by default
+
+# Process monitor - watch for specific applications
+[[sources]]
+name = "process_monitor"
+type = "process_monitor"
+poll_interval_seconds = 2
+enabled = false
+
+# Registry monitor - watch for system changes
+[[sources]]
+name = "system_settings"
+type = "registry_monitor"
+root = "HKLM"
+key = "SOFTWARE/Microsoft/Windows/CurrentVersion/Run"
+recursive = false
+enabled = false
+
+# Rule 1: Alert on executable downloads
+[[rules]]
+name = "executable_downloaded"
+description = "Alert when executable files are downloaded"
+trigger = { type = "file_created", pattern = "*.exe" }
+action = { type = "log", message = "WARNING: Executable file downloaded", level = "warn" }
+enabled = true
+
+# Rule 2: Log text file modifications
+[[rules]]
+name = "text_file_modified"
+description = "Log when text files are modified"
+trigger = { type = "file_modified", pattern = "*.txt" }
+action = { type = "log", message = "Text file modified", level = "info" }
+enabled = true
+
+# Rule 3: Run script on specific file creation
+[[rules]]
+name = "process_csv"
+description = "Process CSV files when created"
+trigger = { type = "file_created", pattern = "*.csv" }
+action = { type = "powershell", script = "Write-Host 'CSV file detected: ' $env:EVENT_PATH" }
+enabled = false
+
+# Rule 4: Execute command on window focus
+[[rules]]
+name = "window_focused"
+description = "Log window focus changes"
+trigger = { type = "window_focused" }
+action = { type = "log", message = "Window focused", level = "debug" }
+enabled = false
+
+# Rule 5: Alert on process start
+[[rules]]
+name = "chrome_started"
+description = "Alert when Chrome starts"
+trigger = { type = "process_started", process_name = "chrome" }
+action = { type = "notify", title = "Chrome Started", message = "Google Chrome has been launched" }
+enabled = false

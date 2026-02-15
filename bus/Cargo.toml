@@ -1,0 +1,8 @@
+[package]
+name = "bus"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+engine_core = { path = "../engine_core" }
+tokio = { version = "1", features = ["sync"] }

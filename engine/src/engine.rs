@@ -1,0 +1,397 @@
+use crate::config::{ActionConfig, Config, RuleConfig, SourceConfig, SourceType, TriggerConfig};
+use crate::plugins::file_watcher::FileWatcherPlugin;
+use crate::plugins::process_monitor::ProcessMonitorPlugin;
+use crate::plugins::registry_monitor::{RegistryMonitorPlugin, RegistryRoot};
+use crate::plugins::window_watcher::WindowEventPlugin;
+use actions::{Action, ActionExecutor, ExecuteAction, LogAction, LogLevel, PowerShellAction};
+use bus::create_event_bus;
+use engine_core::event::EventKind;
+use engine_core::plugin::EventSourcePlugin;
+use rules::{EventKindMatcher, FilePatternMatcher, Rule, RuleMatcher};
+use tokio::sync::mpsc;
+use tracing::{error, info};
+
+pub struct Engine {
+    config: Config,
+    plugins: Vec<Box<dyn EventSourcePlugin>>,
+    rules: Vec<Rule>,
+    action_executor: ActionExecutor,
+    event_sender: Option<mpsc::Sender<engine_core::event::Event>>,
+}
+
+impl Engine {
+    pub fn new(config: Config) -> Self {
+        Self {
+            config,
+            plugins: Vec::new(),
+            rules: Vec::new(),
+            action_executor: ActionExecutor::new(),
+            event_sender: None,
+        }
+    }
+
+    pub async fn initialize(&mut self) -> Result<(), EngineError> {
+        info!("Initializing Windows Event Automation Engine");
+
+        // Create event bus
+        let (sender, mut receiver) = create_event_bus(self.config.engine.event_buffer_size);
+        self.event_sender = Some(sender.clone());
+
+        // Initialize plugins from configuration
+        self.initialize_plugins(sender.clone()).await?;
+
+        // Initialize rules from configuration
+        self.initialize_rules();
+
+        // Initialize actions from configuration
+        self.initialize_actions();
+
+        // Start event processing loop
+        let rules = self.rules.clone();
+
+        tokio::spawn(async move {
+            info!("Event processing loop started");
+
+            while let Some(event) = receiver.recv().await {
+                tracing::debug!("Processing event: {:?} from {}", event.kind, event.source);
+
+                for rule in &rules {
+                    if !rule.enabled {
+                        continue;
+                    }
+
+                    if rule.matches(&event) {
+                        info!("Rule '{}' matched event from {}", rule.name, event.source);
+
+                        // Execute associated action
+                        // For now, we'll just log - in production you'd map rules to actions
+                        let log_action =
+                            LogAction::new(format!("Rule '{}' triggered", rule.name));
+                        if let Err(e) = log_action.execute(&event) {
+                            error!("Action execution failed: {}", e);
+                        }
+                    }
+                }
+            }
+
+            info!("Event processing loop stopped");
+        });
+
+        info!("Engine initialized successfully");
+        Ok(())
+    }
+
+    async fn initialize_plugins(
+        &mut self,
+        sender: mpsc::Sender<engine_core::event::Event>,
+    ) -> Result<(), EngineError> {
+        for source_config in &self.config.sources {
+            if !source_config.enabled {
+                info!("Skipping disabled source: {}", source_config.name);
+                continue;
+            }
+
+            match self.create_plugin(source_config, sender.clone()).await {
+                Ok(plugin) => {
+                    info!("Initialized plugin: {}", source_config.name);
+                    self.plugins.push(plugin);
+                }
+                Err(e) => {
+                    error!(
+                        "Failed to initialize plugin {}: {}",
+                        source_config.name, e
+                    );
+                }
+            }
+        }
+
+        Ok(())
+    }
+
+    async fn create_plugin(
+        &self,
+        config: &SourceConfig,
+        sender: mpsc::Sender<engine_core::event::Event>,
+    ) -> Result<Box<dyn EventSourcePlugin>, EngineError> {
+        match &config.source_type {
+            SourceType::FileWatcher {
+                paths,
+                pattern,
+                recursive,
+            } => {
+                let mut plugin = FileWatcherPlugin::new(&config.name, paths.clone())
+                    .with_recursive(*recursive);
+
+                if let Some(pattern) = pattern {
+                    plugin = plugin.with_pattern(pattern);
+                }
+
+                plugin
+                    .start(sender)
+                    .await
+                    .map_err(|e| EngineError::PluginInit(config.name.clone(), e.to_string()))?;
+
+                Ok(Box::new(plugin))
+            }
+            SourceType::WindowWatcher {
+                title_pattern,
+                process_pattern,
+            } => {
+                let mut plugin = WindowEventPlugin::new(&config.name);
+
+                if let Some(title) = title_pattern {
+                    plugin = plugin.with_title_filter(title);
+                }
+
+                if let Some(process) = process_pattern {
+                    plugin = plugin.with_process_filter(process);
+                }
+
+                plugin
+                    .start(sender)
+                    .await
+                    .map_err(|e| EngineError::PluginInit(config.name.clone(), e.to_string()))?;
+
+                Ok(Box::new(plugin))
+            }
+            SourceType::ProcessMonitor {
+                process_name,
+                poll_interval_seconds,
+            } => {
+                let mut plugin = ProcessMonitorPlugin::new(&config.name)
+                    .with_poll_interval(*poll_interval_seconds);
+
+                if let Some(name) = process_name {
+                    plugin = plugin.with_name_filter(name);
+                }
+
+                plugin
+                    .start(sender)
+                    .await
+                    .map_err(|e| EngineError::PluginInit(config.name.clone(), e.to_string()))?;
+
+                Ok(Box::new(plugin))
+            }
+            SourceType::RegistryMonitor {
+                root,
+                key,
+                recursive,
+            } => {
+                let root_enum = match root.as_str() {
+                    "HKLM" => RegistryRoot::HKEY_LOCAL_MACHINE,
+                    "HKCU" => RegistryRoot::HKEY_CURRENT_USER,
+                    "HKU" => RegistryRoot::HKEY_USERS,
+                    "HKCC" => RegistryRoot::HKEY_CURRENT_CONFIG,
+                    _ => {
+                        return Err(EngineError::Config(format!(
+                            "Invalid registry root: {}",
+                            root
+                        )))
+                    }
+                };
+
+                let mut plugin = if *recursive {
+                    RegistryMonitorPlugin::new(&config.name)
+                        .watch_key_recursive(root_enum, key)
+                } else {
+                    RegistryMonitorPlugin::new(&config.name).watch_key(root_enum, key)
+                };
+
+                plugin
+                    .start(sender)
+                    .await
+                    .map_err(|e| EngineError::PluginInit(config.name.clone(), e.to_string()))?;
+
+                Ok(Box::new(plugin))
+            }
+        }
+    }
+
+    fn initialize_rules(&mut self) {
+        for rule_config in &self.config.rules {
+            if !rule_config.enabled {
+                continue;
+            }
+
+            match self.create_rule(rule_config) {
+                Ok(rule) => {
+                    info!("Loaded rule: {}", rule.name);
+                    self.rules.push(rule);
+                }
+                Err(e) => {
+                    error!("Failed to create rule {}: {}", rule_config.name, e);
+                }
+            }
+        }
+    }
+
+    fn create_rule(&self, config: &RuleConfig) -> Result<Rule, EngineError> {
+        let matcher: Box<dyn RuleMatcher> = match &config.trigger {
+            TriggerConfig::FileCreated { pattern } => {
+                let mut matcher = FilePatternMatcher::created();
+                if let Some(pat) = pattern {
+                    matcher = matcher
+                        .with_file_pattern(pat)
+                        .map_err(|e| EngineError::Config(format!("Invalid pattern: {}", e)))?;
+                }
+                Box::new(matcher)
+            }
+            TriggerConfig::FileModified { pattern } => {
+                let mut matcher = FilePatternMatcher::modified();
+                if let Some(pat) = pattern {
+                    matcher = matcher
+                        .with_file_pattern(pat)
+                        .map_err(|e| EngineError::Config(format!("Invalid pattern: {}", e)))?;
+                }
+                Box::new(matcher)
+            }
+            TriggerConfig::FileDeleted { pattern } => {
+                let mut matcher = FilePatternMatcher::deleted();
+                if let Some(pat) = pattern {
+                    matcher = matcher
+                        .with_file_pattern(pat)
+                        .map_err(|e| EngineError::Config(format!("Invalid pattern: {}", e)))?;
+                }
+                Box::new(matcher)
+            }
+            TriggerConfig::WindowFocused => Box::new(EventKindMatcher {
+                kind: EventKind::WindowFocused {
+                    hwnd: 0,
+                    title: String::new(),
+                },
+            }),
+            TriggerConfig::WindowCreated => Box::new(EventKindMatcher {
+                kind: EventKind::WindowCreated {
+                    hwnd: 0,
+                    title: String::new(),
+                    process_id: 0,
+                },
+            }),
+            TriggerConfig::ProcessStarted { process_name: _ } => Box::new(EventKindMatcher {
+                kind: EventKind::ProcessStarted {
+                    pid: 0,
+                    name: String::new(),
+                    command_line: String::new(),
+                },
+            }),
+            TriggerConfig::ProcessStopped { process_name: _ } => Box::new(EventKindMatcher {
+                kind: EventKind::ProcessStopped {
+                    pid: 0,
+                    name: String::new(),
+                },
+            }),
+            TriggerConfig::RegistryChanged { value_name: _ } => Box::new(EventKindMatcher {
+                kind: EventKind::RegistryChanged {
+                    root: String::new(),
+                    key: String::new(),
+                    value_name: None,
+                    change_type: engine_core::event::RegistryChangeType::Modified,
+                },
+            }),
+            TriggerConfig::Timer { interval_seconds: _ } => {
+                Box::new(EventKindMatcher {
+                    kind: EventKind::TimerTick,
+                })
+            }
+        };
+
+        let mut rule = Rule::new(&config.name, matcher);
+
+        if let Some(desc) = &config.description {
+            rule = rule.with_description(desc);
+        }
+
+        Ok(rule.with_enabled(config.enabled))
+    }
+
+    fn initialize_actions(&mut self) {
+        // Register actions from rule configurations
+        for (idx, rule_config) in self.config.rules.iter().enumerate() {
+            let action_name = format!("rule_{}_action", idx);
+            let action: Box<dyn Action> = match &rule_config.action {
+                ActionConfig::Execute {
+                    command,
+                    args,
+                    working_dir,
+                } => {
+                    let mut exec = ExecuteAction::new(command).with_args(args.clone());
+                    if let Some(dir) = working_dir {
+                        exec = exec.with_working_dir(dir.clone());
+                    }
+                    Box::new(exec)
+                }
+                ActionConfig::PowerShell { script, working_dir } => {
+                    let mut ps = PowerShellAction::new(script);
+                    if let Some(dir) = working_dir {
+                        ps = ps.with_working_dir(dir.clone());
+                    }
+                    Box::new(ps)
+                }
+                ActionConfig::Log { message, level } => {
+                    let log_level = match level.as_str() {
+                        "debug" => LogLevel::Debug,
+                        "info" => LogLevel::Info,
+                        "warn" => LogLevel::Warn,
+                        "error" => LogLevel::Error,
+                        _ => LogLevel::Info,
+                    };
+                    Box::new(LogAction::new(message).with_level(log_level))
+                }
+                ActionConfig::Notify { title, message } => {
+                    // For now, use log action as a placeholder for notifications
+                    Box::new(LogAction::new(format!("{}: {}", title, message)))
+                }
+                ActionConfig::HttpRequest { url, .. } => {
+                    // HTTP requests would need additional implementation
+                    Box::new(LogAction::new(format!("HTTP request to: {}", url)))
+                }
+            };
+
+            self.action_executor.register(action_name, action);
+        }
+    }
+
+    pub async fn shutdown(&mut self) {
+        info!("Shutting down engine");
+
+        for plugin in &mut self.plugins {
+            if let Err(e) = plugin.stop().await {
+                error!("Error stopping plugin: {}", e);
+            }
+        }
+
+        info!("Engine shutdown complete");
+    }
+
+    pub fn get_status(&self) -> EngineStatus {
+        EngineStatus {
+            active_plugins: self.plugins.len(),
+            active_rules: self.rules.len(),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct EngineStatus {
+    pub active_plugins: usize,
+    pub active_rules: usize,
+}
+
+#[derive(Debug, Clone)]
+pub enum EngineError {
+    Config(String),
+    PluginInit(String, String),
+}
+
+impl std::fmt::Display for EngineError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            EngineError::Config(msg) => write!(f, "Configuration error: {}", msg),
+            EngineError::PluginInit(name, msg) => {
+                write!(f, "Plugin '{}' initialization error: {}", name, msg)
+            }
+        }
+    }
+}
+
+impl std::error::Error for EngineError {}

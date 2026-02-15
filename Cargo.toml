@@ -1,0 +1,10 @@
+[workspace]
+resolver = "2"
+members = ["actions", "bus", "engine", "engine_core", "rules"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+authors = ["Your Name"]
+license = "MIT"
+repository = "https://github.com/yourusername/win_event_engine"
