@@ -2,14 +2,14 @@ use async_trait::async_trait;
 use engine_core::event::{Event, EventKind};
 use engine_core::plugin::{EventEmitter, EventSourcePlugin, PluginError};
 use std::collections::HashMap;
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
-use tokio::time::{sleep, Duration};
+use std::sync::atomic::{AtomicBool, Ordering};
+use tokio::time::{Duration, sleep};
 use tracing::{error, info};
 use windows::Win32::Foundation::CloseHandle;
 use windows::Win32::System::ProcessStatus::EnumProcesses;
 use windows::Win32::System::Threading::{
-    OpenProcess, QueryFullProcessImageNameW, PROCESS_NAME_FORMAT, PROCESS_QUERY_INFORMATION,
+    OpenProcess, PROCESS_NAME_FORMAT, PROCESS_QUERY_INFORMATION, QueryFullProcessImageNameW,
 };
 
 pub struct ProcessMonitorPlugin {
@@ -153,11 +153,10 @@ impl EventSourcePlugin for ProcessMonitorPlugin {
                     break;
                 }
 
-                let current_processes: HashMap<u32, ProcessInfo> =
-                    Self::get_process_list()
-                        .into_iter()
-                        .map(|p| (p.pid, p))
-                        .collect();
+                let current_processes: HashMap<u32, ProcessInfo> = Self::get_process_list()
+                    .into_iter()
+                    .map(|p| (p.pid, p))
+                    .collect();
 
                 // Check for new processes
                 for (pid, proc) in &current_processes {
@@ -169,10 +168,7 @@ impl EventSourcePlugin for ProcessMonitorPlugin {
                             .unwrap_or(true);
 
                         if name_match {
-                            info!(
-                                "Process started: {} (PID: {})",
-                                proc.name, proc.pid
-                            );
+                            info!("Process started: {} (PID: {})", proc.name, proc.pid);
 
                             let event = Event::new(
                                 EventKind::ProcessStarted {
@@ -202,10 +198,7 @@ impl EventSourcePlugin for ProcessMonitorPlugin {
                             .unwrap_or(true);
 
                         if name_match {
-                            info!(
-                                "Process stopped: {} (PID: {})",
-                                proc.name, proc.pid
-                            );
+                            info!("Process stopped: {} (PID: {})", proc.name, proc.pid);
 
                             let event = Event::new(
                                 EventKind::ProcessStopped {
@@ -256,7 +249,7 @@ mod tests {
         assert!(!plugin.is_running());
 
         plugin.start(tx).await.expect("Failed to start plugin");
-        
+
         // Give the async task time to start
         sleep(Duration::from_millis(100)).await;
         assert!(plugin.is_running());

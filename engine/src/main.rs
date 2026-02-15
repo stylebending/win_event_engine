@@ -7,7 +7,7 @@ mod integration_tests;
 
 use clap::Parser;
 use std::path::PathBuf;
-use tracing::{error, info, Level};
+use tracing::{Level, error, info};
 use tracing_subscriber;
 
 #[derive(Parser, Debug)]
@@ -34,6 +34,10 @@ struct Cli {
     /// Show engine status and exit
     #[arg(long)]
     status: bool,
+
+    /// Disable hot-reloading of configuration
+    #[arg(long)]
+    no_watch: bool,
 }
 
 #[tokio::main]
@@ -54,25 +58,47 @@ async fn main() {
         .with_target(false)
         .init();
 
-    info!("Windows Event Automation Engine v{}", env!("CARGO_PKG_VERSION"));
+    info!(
+        "Windows Event Automation Engine v{}",
+        env!("CARGO_PKG_VERSION")
+    );
+
+    // Determine config path for hot-reloading
+    let config_path = if let Some(ref path) = cli.config {
+        Some(path.clone())
+    } else if let Some(ref dir) = cli.config_dir {
+        Some(dir.clone())
+    } else {
+        let default_config = PathBuf::from("config.toml");
+        let default_config_dir = PathBuf::from("config");
+        if default_config.exists() {
+            Some(default_config)
+        } else if default_config_dir.exists() {
+            Some(default_config_dir)
+        } else {
+            None
+        }
+    };
 
     // Load configuration
-    let config = if let Some(config_path) = cli.config {
-        info!("Loading configuration from: {:?}", config_path);
-        match config::Config::load_from_file(&config_path) {
-            Ok(cfg) => cfg,
-            Err(e) => {
-                error!("Failed to load configuration: {}", e);
-                std::process::exit(1);
+    let config = if let Some(config_path) = config_path.clone() {
+        if config_path.is_dir() {
+            info!("Loading configuration from directory: {:?}", config_path);
+            match config::Config::load_from_dir(&config_path) {
+                Ok(cfg) => cfg,
+                Err(e) => {
+                    error!("Failed to load configuration: {}", e);
+                    std::process::exit(1);
+                }
             }
-        }
-    } else if let Some(config_dir) = cli.config_dir {
-        info!("Loading configuration from directory: {:?}", config_dir);
-        match config::Config::load_from_dir(&config_dir) {
-            Ok(cfg) => cfg,
-            Err(e) => {
-                error!("Failed to load configuration: {}", e);
-                std::process::exit(1);
+        } else {
+            info!("Loading configuration from: {:?}", config_path);
+            match config::Config::load_from_file(&config_path) {
+                Ok(cfg) => cfg,
+                Err(e) => {
+                    error!("Failed to load configuration: {}", e);
+                    std::process::exit(1);
+                }
             }
         }
     } else {
@@ -121,7 +147,7 @@ async fn main() {
     }
 
     // Create and initialize engine
-    let mut engine_instance = engine::Engine::new(config);
+    let mut engine_instance = engine::Engine::new(config, config_path.clone());
 
     if let Err(e) = engine_instance.initialize().await {
         error!("Failed to initialize engine: {}", e);
@@ -134,16 +160,70 @@ async fn main() {
         status.active_plugins, status.active_rules
     );
 
+    // Start config hot-reloading if enabled
+    let mut config_reload_rx = if !cli.no_watch && config_path.is_some() {
+        engine_instance.watch_config().await;
+        engine_instance.take_config_reload_rx()
+    } else {
+        if config_path.is_some() {
+            info!("Hot-reloading disabled via --no-watch");
+        }
+        None
+    };
+
+    let shutdown_flag = engine_instance.shutdown_flag();
+
     // Setup graceful shutdown
     let (_shutdown_tx, mut shutdown_rx) = tokio::sync::mpsc::channel::<()>(1);
     let mut engine_for_shutdown = engine_instance;
 
-    tokio::select! {
-        _ = tokio::signal::ctrl_c() => {
-            info!("Received shutdown signal");
-        }
-        _ = shutdown_rx.recv() => {
-            info!("Received shutdown command");
+    loop {
+        tokio::select! {
+            _ = tokio::signal::ctrl_c() => {
+                info!("Received shutdown signal");
+                break;
+            }
+            _ = shutdown_rx.recv() => {
+                info!("Received shutdown command");
+                break;
+            }
+            _ = async {
+                match &mut config_reload_rx {
+                    Some(rx) => rx.recv().await,
+                    None => std::future::pending().await,
+                }
+            } => {
+                info!("Config change detected, reloading...");
+                shutdown_flag.store(true, std::sync::atomic::Ordering::Relaxed);
+
+                if let Some(ref path) = config_path {
+                    match if path.is_dir() {
+                        config::Config::load_from_dir(path)
+                    } else {
+                        config::Config::load_from_file(path)
+                    } {
+                        Ok(new_config) => {
+                            if let Err(e) = engine_for_shutdown.reload(new_config).await {
+                                error!("Failed to reload config: {}", e);
+                            }
+                        }
+                        Err(e) => {
+                            error!("Failed to load new config: {}", e);
+                        }
+                    }
+                }
+
+                shutdown_flag.store(false, std::sync::atomic::Ordering::Relaxed);
+
+                config_reload_rx = if !cli.no_watch && config_path.is_some() {
+                    engine_for_shutdown.watch_config().await;
+                    engine_for_shutdown.take_config_reload_rx()
+                } else {
+                    None
+                };
+
+                info!("Config reload complete, continuing to run...");
+            }
         }
     }
 
@@ -160,8 +240,15 @@ fn print_status(config: &config::Config) {
 
     println!("Sources ({}):", config.sources.len());
     for source in &config.sources {
-        let status = if source.enabled { "enabled" } else { "disabled" };
-        println!("  - {} ({:?}) [{}]", source.name, source.source_type, status);
+        let status = if source.enabled {
+            "enabled"
+        } else {
+            "disabled"
+        };
+        println!(
+            "  - {} ({:?}) [{}]",
+            source.name, source.source_type, status
+        );
     }
     println!();
 
@@ -184,30 +271,26 @@ fn create_demo_config() -> config::Config {
             event_buffer_size: 100,
             log_level: "info".to_string(),
         },
-        sources: vec![
-            SourceConfig {
-                name: "test_file_watcher".to_string(),
-                source_type: SourceType::FileWatcher {
-                    paths: vec![PathBuf::from("./test_watch")],
-                    pattern: Some("*.txt".to_string()),
-                    recursive: false,
-                },
-                enabled: true,
+        sources: vec![SourceConfig {
+            name: "test_file_watcher".to_string(),
+            source_type: SourceType::FileWatcher {
+                paths: vec![PathBuf::from(".")],
+                pattern: Some("*.txt".to_string()),
+                recursive: false,
             },
-        ],
-        rules: vec![
-            RuleConfig {
-                name: "text_file_created".to_string(),
-                description: Some("Detect when text files are created".to_string()),
-                trigger: TriggerConfig::FileCreated {
-                    pattern: Some("*.txt".to_string()),
-                },
-                action: ActionConfig::Log {
-                    message: "Text file created!".to_string(),
-                    level: "info".to_string(),
-                },
-                enabled: true,
+            enabled: true,
+        }],
+        rules: vec![RuleConfig {
+            name: "text_file_created".to_string(),
+            description: Some("Detect when text files are created".to_string()),
+            trigger: TriggerConfig::FileCreated {
+                pattern: Some("*.txt".to_string()),
             },
-        ],
+            action: ActionConfig::Log {
+                message: "Text file created!".to_string(),
+                level: "info".to_string(),
+            },
+            enabled: true,
+        }],
     }
 }

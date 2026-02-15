@@ -8,26 +8,39 @@ use bus::create_event_bus;
 use engine_core::event::EventKind;
 use engine_core::plugin::EventSourcePlugin;
 use rules::{EventKindMatcher, FilePatternMatcher, Rule, RuleMatcher};
+use std::path::PathBuf;
+use std::sync::Arc;
 use tokio::sync::mpsc;
-use tracing::{error, info};
+use tokio::time::{Duration, timeout};
+use tracing::{error, info, warn};
 
 pub struct Engine {
     config: Config,
+    config_path: Option<PathBuf>,
     plugins: Vec<Box<dyn EventSourcePlugin>>,
     rules: Vec<Rule>,
     action_executor: ActionExecutor,
     event_sender: Option<mpsc::Sender<engine_core::event::Event>>,
+    shutdown_flag: Arc<std::sync::atomic::AtomicBool>,
+    config_reload_rx: Option<mpsc::Receiver<()>>,
 }
 
 impl Engine {
-    pub fn new(config: Config) -> Self {
+    pub fn new(config: Config, config_path: Option<PathBuf>) -> Self {
         Self {
             config,
+            config_path,
             plugins: Vec::new(),
             rules: Vec::new(),
             action_executor: ActionExecutor::new(),
             event_sender: None,
+            shutdown_flag: Arc::new(std::sync::atomic::AtomicBool::new(false)),
+            config_reload_rx: None,
         }
+    }
+
+    pub fn take_config_reload_rx(&mut self) -> Option<mpsc::Receiver<()>> {
+        self.config_reload_rx.take()
     }
 
     pub async fn initialize(&mut self) -> Result<(), EngineError> {
@@ -65,8 +78,7 @@ impl Engine {
 
                         // Execute associated action
                         // For now, we'll just log - in production you'd map rules to actions
-                        let log_action =
-                            LogAction::new(format!("Rule '{}' triggered", rule.name));
+                        let log_action = LogAction::new(format!("Rule '{}' triggered", rule.name));
                         if let Err(e) = log_action.execute(&event) {
                             error!("Action execution failed: {}", e);
                         }
@@ -97,10 +109,7 @@ impl Engine {
                     self.plugins.push(plugin);
                 }
                 Err(e) => {
-                    error!(
-                        "Failed to initialize plugin {}: {}",
-                        source_config.name, e
-                    );
+                    error!("Failed to initialize plugin {}: {}", source_config.name, e);
                 }
             }
         }
@@ -119,8 +128,8 @@ impl Engine {
                 pattern,
                 recursive,
             } => {
-                let mut plugin = FileWatcherPlugin::new(&config.name, paths.clone())
-                    .with_recursive(*recursive);
+                let mut plugin =
+                    FileWatcherPlugin::new(&config.name, paths.clone()).with_recursive(*recursive);
 
                 if let Some(pattern) = pattern {
                     plugin = plugin.with_pattern(pattern);
@@ -186,13 +195,12 @@ impl Engine {
                         return Err(EngineError::Config(format!(
                             "Invalid registry root: {}",
                             root
-                        )))
+                        )));
                     }
                 };
 
                 let mut plugin = if *recursive {
-                    RegistryMonitorPlugin::new(&config.name)
-                        .watch_key_recursive(root_enum, key)
+                    RegistryMonitorPlugin::new(&config.name).watch_key_recursive(root_enum, key)
                 } else {
                     RegistryMonitorPlugin::new(&config.name).watch_key(root_enum, key)
                 };
@@ -288,11 +296,11 @@ impl Engine {
                     change_type: engine_core::event::RegistryChangeType::Modified,
                 },
             }),
-            TriggerConfig::Timer { interval_seconds: _ } => {
-                Box::new(EventKindMatcher {
-                    kind: EventKind::TimerTick,
-                })
-            }
+            TriggerConfig::Timer {
+                interval_seconds: _,
+            } => Box::new(EventKindMatcher {
+                kind: EventKind::TimerTick,
+            }),
         };
 
         let mut rule = Rule::new(&config.name, matcher);
@@ -320,7 +328,10 @@ impl Engine {
                     }
                     Box::new(exec)
                 }
-                ActionConfig::PowerShell { script, working_dir } => {
+                ActionConfig::PowerShell {
+                    script,
+                    working_dir,
+                } => {
                     let mut ps = PowerShellAction::new(script);
                     if let Some(dir) = working_dir {
                         ps = ps.with_working_dir(dir.clone());
@@ -368,6 +379,158 @@ impl Engine {
             active_plugins: self.plugins.len(),
             active_rules: self.rules.len(),
         }
+    }
+
+    pub async fn reload(&mut self, new_config: Config) -> Result<(), EngineError> {
+        info!("Starting full config reload");
+
+        if let Err(e) = new_config.validate() {
+            warn!(
+                "New configuration validation failed: {}, keeping current config",
+                e
+            );
+            return Err(EngineError::Config(e.to_string()));
+        }
+
+        info!("Stopping all plugins for reload");
+        for plugin in &mut self.plugins {
+            if let Err(e) = plugin.stop().await {
+                error!("Error stopping plugin during reload: {}", e);
+            }
+        }
+        self.plugins.clear();
+        self.rules.clear();
+
+        self.config = new_config;
+
+        if let Some(sender) = &self.event_sender {
+            self.initialize_plugins(sender.clone()).await?;
+        }
+
+        self.initialize_rules();
+        self.initialize_actions();
+
+        if let Some(_sender) = &self.event_sender {
+            let rules = self.rules.clone();
+            let mut receiver = bus::create_event_bus(self.config.engine.event_buffer_size).1;
+
+            tokio::spawn(async move {
+                while let Some(event) = receiver.recv().await {
+                    tracing::debug!("Processing event: {:?} from {}", event.kind, event.source);
+
+                    for rule in &rules {
+                        if !rule.enabled {
+                            continue;
+                        }
+
+                        if rule.matches(&event) {
+                            info!("Rule '{}' matched event from {}", rule.name, event.source);
+
+                            let log_action =
+                                LogAction::new(format!("Rule '{}' triggered", rule.name));
+                            if let Err(e) = log_action.execute(&event) {
+                                error!("Action execution failed: {}", e);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        let status = self.get_status();
+        info!(
+            "Config reload complete: {} plugins, {} rules",
+            status.active_plugins, status.active_rules
+        );
+
+        Ok(())
+    }
+
+    pub async fn watch_config(&mut self) {
+        let config_path = match &self.config_path {
+            Some(p) => p.clone(),
+            None => {
+                info!("No config path configured, skipping config watcher");
+                return;
+            }
+        };
+
+        let (tx, rx) = mpsc::channel(10);
+        self.config_reload_rx = Some(rx);
+
+        let shutdown_flag = self.shutdown_flag.clone();
+
+        tokio::spawn(async move {
+            use notify::{Config as NotifyConfig, RecommendedWatcher, RecursiveMode, Watcher};
+
+            let (notify_tx, mut notify_rx) = mpsc::channel(100);
+
+            let mut watcher: RecommendedWatcher = match Watcher::new(
+                move |res: Result<notify::Event, notify::Error>| {
+                    if let Ok(event) = res {
+                        let _ = notify_tx.blocking_send(event);
+                    }
+                },
+                NotifyConfig::default(),
+            ) {
+                Ok(w) => w,
+                Err(e) => {
+                    error!("Failed to create config watcher: {}", e);
+                    return;
+                }
+            };
+
+            let watch_path = if config_path.is_dir() {
+                config_path.clone()
+            } else {
+                config_path.parent().unwrap_or(&config_path).to_path_buf()
+            };
+
+            if let Err(e) = watcher.watch(&watch_path, RecursiveMode::Recursive) {
+                error!("Failed to watch config path: {}", e);
+                return;
+            }
+
+            info!("Config watcher started for: {:?}", watch_path);
+            let mut last_reload = std::time::Instant::now();
+            let debounce_duration = Duration::from_millis(500);
+
+            while !shutdown_flag.load(std::sync::atomic::Ordering::Relaxed) {
+                match timeout(Duration::from_millis(250), notify_rx.recv()).await {
+                    Ok(Some(event)) => {
+                        if let notify::EventKind::Modify(_) | notify::EventKind::Create(_) =
+                            event.kind
+                        {
+                            if last_reload.elapsed() < debounce_duration {
+                                continue;
+                            }
+
+                            let paths: Vec<_> = event
+                                .paths
+                                .iter()
+                                .filter(|p| p.extension().map(|e| e == "toml").unwrap_or(false))
+                                .collect();
+
+                            if paths.is_empty() {
+                                continue;
+                            }
+
+                            info!("Config change detected, signaling reload...");
+                            let _ = tx.send(()).await;
+                            last_reload = std::time::Instant::now();
+                        }
+                    }
+                    Ok(None) => break,
+                    Err(_) => continue,
+                }
+            }
+
+            info!("Config watcher stopped");
+        });
+    }
+
+    pub fn shutdown_flag(&self) -> Arc<std::sync::atomic::AtomicBool> {
+        self.shutdown_flag.clone()
     }
 }
 

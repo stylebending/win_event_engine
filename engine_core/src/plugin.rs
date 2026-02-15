@@ -1,5 +1,5 @@
-use async_trait::async_trait;
 use crate::event::Event;
+use async_trait::async_trait;
 use std::fmt;
 use tokio::sync::mpsc::Sender;
 
@@ -27,13 +27,13 @@ impl std::error::Error for PluginError {}
 #[async_trait]
 pub trait EventSourcePlugin: Send + Sync {
     fn name(&self) -> &str;
-    
+
     async fn start(&mut self, emitter: EventEmitter) -> Result<(), PluginError>;
-    
+
     async fn stop(&mut self) -> Result<(), PluginError> {
         Ok(())
     }
-    
+
     fn is_running(&self) -> bool {
         false
     }

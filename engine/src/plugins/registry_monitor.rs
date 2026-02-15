@@ -1,15 +1,15 @@
 use async_trait::async_trait;
 use engine_core::event::{Event, EventKind, RegistryChangeType};
 use engine_core::plugin::{EventEmitter, EventSourcePlugin, PluginError};
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
-use tokio::time::{sleep, Duration};
+use std::sync::atomic::{AtomicBool, Ordering};
+use tokio::time::{Duration, sleep};
 use tracing::{error, info};
 use windows::Win32::Foundation::{CloseHandle, HANDLE, WAIT_OBJECT_0};
 use windows::Win32::System::Registry::{
-    RegCloseKey, RegNotifyChangeKeyValue, RegOpenKeyExW, HKEY, HKEY_CURRENT_CONFIG,
-    HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, HKEY_USERS, REG_NOTIFY_CHANGE_NAME,
-    REG_NOTIFY_CHANGE_LAST_SET, KEY_NOTIFY, KEY_READ,
+    HKEY, HKEY_CURRENT_CONFIG, HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, HKEY_USERS, KEY_NOTIFY,
+    KEY_READ, REG_NOTIFY_CHANGE_LAST_SET, REG_NOTIFY_CHANGE_NAME, RegCloseKey,
+    RegNotifyChangeKeyValue, RegOpenKeyExW,
 };
 use windows::Win32::System::Threading::WaitForSingleObject;
 
@@ -102,32 +102,17 @@ impl RegistryMonitorPlugin {
                 &mut hkey,
             );
 
-            if result.is_ok() {
-                Some(hkey)
-            } else {
-                None
-            }
+            if result.is_ok() { Some(hkey) } else { None }
         }
     }
 
     fn setup_registry_notification(&self, hkey: HKEY, watch_tree: bool) -> Option<HANDLE> {
         unsafe {
-            let event_handle = windows::Win32::System::Threading::CreateEventW(
-                None,
-                false,
-                false,
-                None,
-            )
-            .ok()?;
+            let event_handle =
+                windows::Win32::System::Threading::CreateEventW(None, false, false, None).ok()?;
 
             let filter = REG_NOTIFY_CHANGE_NAME | REG_NOTIFY_CHANGE_LAST_SET;
-            let result = RegNotifyChangeKeyValue(
-                hkey,
-                watch_tree,
-                filter,
-                event_handle,
-                true,
-            );
+            let result = RegNotifyChangeKeyValue(hkey, watch_tree, filter, event_handle, true);
 
             if result.is_ok() {
                 Some(event_handle)
@@ -169,12 +154,15 @@ impl EventSourcePlugin for RegistryMonitorPlugin {
             // Open all registry keys
             let mut key_handles: Vec<(HKEY, RegistryKeyConfig, HANDLE)> = Vec::new();
             for config in &keys {
-                if let Some(hkey) = Self::open_registry_key(&Self {
-                    name: plugin_name.clone(),
-                    keys: keys.clone(),
-                    is_running: is_running.clone(),
-                    poll_interval,
-                }, config) {
+                if let Some(hkey) = Self::open_registry_key(
+                    &Self {
+                        name: plugin_name.clone(),
+                        keys: keys.clone(),
+                        is_running: is_running.clone(),
+                        poll_interval,
+                    },
+                    config,
+                ) {
                     if let Some(event_handle) = Self::setup_registry_notification(
                         &Self {
                             name: plugin_name.clone(),
@@ -320,7 +308,10 @@ mod tests {
     fn test_registry_key_config() {
         let plugin = RegistryMonitorPlugin::new("test")
             .watch_key(RegistryRoot::HKEY_CURRENT_USER, "Software\\Test")
-            .watch_key_recursive(RegistryRoot::HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet");
+            .watch_key_recursive(
+                RegistryRoot::HKEY_LOCAL_MACHINE,
+                "SYSTEM\\CurrentControlSet",
+            );
 
         assert_eq!(plugin.keys.len(), 2);
         assert!(!plugin.keys[0].watch_tree);
