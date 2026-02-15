@@ -1,8 +1,8 @@
 use async_trait::async_trait;
 use engine_core::event::{Event, EventKind};
 use engine_core::plugin::{EventEmitter, EventSourcePlugin, PluginError};
-use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
 use tokio::sync::mpsc;
 use tracing::{error, info, warn};
 use windows::Win32::Foundation::HWND;
@@ -106,9 +106,7 @@ impl WindowEventPlugin {
                 title: title.clone(),
                 process_id,
             },
-            WindowEventType::Destroyed => EventKind::WindowDestroyed {
-                hwnd: hwnd_isize,
-            },
+            WindowEventType::Destroyed => EventKind::WindowDestroyed { hwnd: hwnd_isize },
             WindowEventType::Focused => EventKind::WindowFocused {
                 hwnd: hwnd_isize,
                 title: title.clone(),

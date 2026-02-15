@@ -32,7 +32,6 @@ Thumbs.db
 .cargo/
 
 # Test data directories
-test_watch/
 temp/
 tmp/
 

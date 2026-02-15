@@ -63,21 +63,15 @@ impl FileWatcherPlugin {
             }
 
             let kind = match event.kind {
-                notify::EventKind::Create(_) => {
-                    EventKind::FileCreated { path: path.clone() }
-                }
-                notify::EventKind::Modify(_) => {
-                    EventKind::FileModified { path: path.clone() }
-                }
-                notify::EventKind::Remove(_) => {
-                    EventKind::FileDeleted { path: path.clone() }
-                }
+                notify::EventKind::Create(_) => EventKind::FileCreated { path: path.clone() },
+                notify::EventKind::Modify(_) => EventKind::FileModified { path: path.clone() },
+                notify::EventKind::Remove(_) => EventKind::FileDeleted { path: path.clone() },
                 _ => continue,
             };
 
-            let metadata_event = Event::new(kind, &source)
-                .with_metadata("watcher_path", path.to_string_lossy());
-            
+            let metadata_event =
+                Event::new(kind, &source).with_metadata("watcher_path", path.to_string_lossy());
+
             events.push(metadata_event);
         }
 
@@ -112,50 +106,48 @@ impl EventSourcePlugin for FileWatcherPlugin {
 
         let plugin_name = self.name.clone();
         let pattern = self.pattern.clone();
-        
+
         let mut watcher = RecommendedWatcher::new(
-            move |res: Result<NotifyEvent, notify::Error>| {
-                match res {
-                    Ok(event) => {
-                        debug!("File system event: {:?}", event);
-                        
-                        for path in &event.paths {
-                            if let Some(ref pat) = pattern {
-                                if let Some(filename) = path.file_name() {
-                                    if let Some(name) = filename.to_str() {
-                                        if let Ok(glob_pattern) = glob::Pattern::new(pat) {
-                                            if !glob_pattern.matches(name) {
-                                                continue;
-                                            }
+            move |res: Result<NotifyEvent, notify::Error>| match res {
+                Ok(event) => {
+                    debug!("File system event: {:?}", event);
+
+                    for path in &event.paths {
+                        if let Some(ref pat) = pattern {
+                            if let Some(filename) = path.file_name() {
+                                if let Some(name) = filename.to_str() {
+                                    if let Ok(glob_pattern) = glob::Pattern::new(pat) {
+                                        if !glob_pattern.matches(name) {
+                                            continue;
                                         }
                                     }
                                 }
                             }
-                            
-                            let kind = match event.kind {
-                                notify::EventKind::Create(_) => {
-                                    EventKind::FileCreated { path: path.clone() }
-                                }
-                                notify::EventKind::Modify(_) => {
-                                    EventKind::FileModified { path: path.clone() }
-                                }
-                                notify::EventKind::Remove(_) => {
-                                    EventKind::FileDeleted { path: path.clone() }
-                                }
-                                _ => continue,
-                            };
-                            
-                            let event = Event::new(kind, &plugin_name)
-                                .with_metadata("watcher_path", path.to_string_lossy());
-                            
-                            if let Err(e) = emitter.try_send(event) {
-                                error!("Failed to send event: {}", e);
+                        }
+
+                        let kind = match event.kind {
+                            notify::EventKind::Create(_) => {
+                                EventKind::FileCreated { path: path.clone() }
                             }
+                            notify::EventKind::Modify(_) => {
+                                EventKind::FileModified { path: path.clone() }
+                            }
+                            notify::EventKind::Remove(_) => {
+                                EventKind::FileDeleted { path: path.clone() }
+                            }
+                            _ => continue,
+                        };
+
+                        let event = Event::new(kind, &plugin_name)
+                            .with_metadata("watcher_path", path.to_string_lossy());
+
+                        if let Err(e) = emitter.try_send(event) {
+                            error!("Failed to send event: {}", e);
                         }
                     }
-                    Err(e) => {
-                        error!("File watcher error: {}", e);
-                    }
+                }
+                Err(e) => {
+                    error!("File watcher error: {}", e);
                 }
             },
             Config::default(),
@@ -168,30 +160,30 @@ impl EventSourcePlugin for FileWatcherPlugin {
                 continue;
             }
 
-            watcher
-                .watch(path, recursive_mode)
-                .map_err(|e| PluginError::Initialization(format!("Failed to watch {:?}: {}", path, e)))?;
-            
+            watcher.watch(path, recursive_mode).map_err(|e| {
+                PluginError::Initialization(format!("Failed to watch {:?}: {}", path, e))
+            })?;
+
             info!("Watching path: {:?} (recursive: {})", path, self.recursive);
         }
 
         self.watcher = Some(watcher);
         self.is_running = true;
-        
+
         Ok(())
     }
 
     async fn stop(&mut self) -> Result<(), PluginError> {
         if let Some(mut watcher) = self.watcher.take() {
             info!("Stopping file watcher plugin: {}", self.name);
-            
+
             for path in &self.paths {
                 if let Err(e) = watcher.unwatch(path) {
                     warn!("Failed to unwatch {:?}: {}", path, e);
                 }
             }
         }
-        
+
         self.is_running = false;
         Ok(())
     }
@@ -214,29 +206,32 @@ mod tests {
     async fn test_file_watcher_detects_create() {
         let temp_dir = TempDir::new().unwrap();
         let (tx, mut rx) = tokio::sync::mpsc::channel(10);
-        
-        let mut plugin = FileWatcherPlugin::new("test_watcher", vec![temp_dir.path().to_path_buf()])
-            .with_recursive(false);
-        
+
+        let mut plugin =
+            FileWatcherPlugin::new("test_watcher", vec![temp_dir.path().to_path_buf()])
+                .with_recursive(false);
+
         plugin.start(tx).await.expect("Failed to start plugin");
-        
+
         // Give watcher time to initialize
         tokio::time::sleep(Duration::from_millis(100)).await;
-        
+
         // Create a file
         let test_file = temp_dir.path().join("test.txt");
-        let mut file = File::create(&test_file).await.expect("Failed to create file");
+        let mut file = File::create(&test_file)
+            .await
+            .expect("Failed to create file");
         file.write_all(b"test").await.expect("Failed to write");
         drop(file);
-        
+
         // Wait for event
         let result = timeout(Duration::from_secs(5), rx.recv()).await;
-        
+
         plugin.stop().await.expect("Failed to stop plugin");
-        
+
         assert!(result.is_ok(), "Should receive event within timeout");
         let event = result.unwrap().expect("Should receive event");
-        
+
         match event.kind {
             EventKind::FileCreated { path } => {
                 assert!(path.ends_with("test.txt"));
@@ -250,7 +245,7 @@ mod tests {
         let temp_dir = TempDir::new().unwrap();
         let plugin = FileWatcherPlugin::new("test", vec![temp_dir.path().to_path_buf()])
             .with_pattern("*.txt");
-        
+
         assert!(plugin.should_emit_event(&PathBuf::from("file.txt")));
         assert!(plugin.should_emit_event(&PathBuf::from("/path/to/file.txt")));
         assert!(!plugin.should_emit_event(&PathBuf::from("file.log")));
@@ -260,7 +255,7 @@ mod tests {
     fn test_no_pattern_matches_all() {
         let temp_dir = TempDir::new().unwrap();
         let plugin = FileWatcherPlugin::new("test", vec![temp_dir.path().to_path_buf()]);
-        
+
         assert!(plugin.should_emit_event(&PathBuf::from("file.txt")));
         assert!(plugin.should_emit_event(&PathBuf::from("file.log")));
         assert!(plugin.should_emit_event(&PathBuf::from("anything")));

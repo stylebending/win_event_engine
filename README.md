@@ -32,7 +32,7 @@ A universal event automation system for Windows built in Rust. Monitor file syst
 - Structured logging with `tracing`
 - Graceful shutdown handling
 - Configuration validation
-- Hot-reloading support (configurable)
+- Hot-reloading support (enabled by default, disable with `--no-watch`)
 
 ## Quick Start
 
@@ -75,6 +75,9 @@ cargo run -p engine -- --log-level debug
 
 # Dry run (log actions but don't execute)
 cargo run -p engine -- --dry-run
+
+# Disable hot-reloading (enabled by default)
+cargo run -p engine -- --no-watch
 ```
 
 ## Configuration
@@ -171,6 +174,34 @@ Options:
 
 ## Architecture
 
+```
+┌─────────────────────────────────────────────────────────┐
+│        Windows Event Automation Engine v0.1.0           │
+├─────────────────────────────────────────────────────────┤
+│  CLI (clap) → Config (TOML) → Engine                    │
+│                    ↑              │                      │
+│                    │    Config    │                      │
+│                    └──── Watcher ←┘                      │
+│                                                         │
+│  Event Sources:                                         │
+│  ├── File Watcher (notify crate)                        │
+│  ├── Window Watcher (Win32 API)                        │
+│  ├── Process Monitor (EnumProcesses)                    │
+│  └── Registry Monitor (RegNotifyChangeKeyValue)        │
+│                                                         │
+│  Event Bus (tokio mpsc channels)                       │
+│                                                         │
+│  Rule Engine                                            │
+│  ├── File Pattern Matcher                               │
+│  ├── Event Kind Matcher                                │
+│  └── Composite Matcher (AND/OR)                        │
+│                                                         │
+│  Action Executor                                        │
+│  ├── Execute Command                                   │
+│  ├── PowerShell Script                                 │
+│  ├── Log Message                                       │
+│  └── HTTP Request (extensible)                          │
+└─────────────────────────────────────────────────────────┘
 ```
 ┌─────────────────────────────────────────────────────────┐
 │        Windows Event Automation Engine v0.1.0           │
@@ -364,7 +395,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [x] TOML configuration
 - [x] CLI interface
 - [x] Rule engine
-- [ ] Configuration hot-reloading
+- [x] Configuration hot-reloading
 - [ ] Windows service wrapper
 - [ ] Web dashboard
 - [ ] Metrics and monitoring
