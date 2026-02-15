@@ -158,7 +158,7 @@ See `config.toml.example` and `rules.toml.example` for more examples.
 ## CLI Usage
 
 ```
-Windows Event Automation Engine 0.1.0
+Windows Event Automation Engine v0.1.1
 
 Usage: engine [OPTIONS]
 
@@ -166,19 +166,20 @@ Options:
   -c, --config <FILE>       Path to configuration file
   -d, --config-dir <DIR>    Directory containing configuration files
       --dry-run             Run in dry-run mode (don't execute actions)
-  -l, --log-level <LEVEL>   Log level (debug, info, warn, error) [default: info]
+  -l, --log-level <LEVEL>  Log level (debug, info, warn, error) [default: info]
+      --no-watch            Disable hot-reloading of configuration
       --status              Show engine status and exit
-  -h, --help                Print help
-  -V, --version             Print version
+  -h, --help               Print help
+  -V, --version            Print version
 ```
 
 ## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│        Windows Event Automation Engine v0.1.0           │
+│        Windows Event Automation Engine v0.1.1           │
 ├─────────────────────────────────────────────────────────┤
-│  CLI (clap) → Config (TOML) → Engine                    │
+│  CLI (clap) → Config (TOML) → Engine                  │
 │                    ↑              │                      │
 │                    │    Config    │                      │
 │                    └──── Watcher ←┘                      │
@@ -192,7 +193,7 @@ Options:
 │  Event Bus (tokio mpsc channels)                       │
 │                                                         │
 │  Rule Engine                                            │
-│  ├── File Pattern Matcher                               │
+│  ├── File Pattern Matcher                              │
 │  ├── Event Kind Matcher                                │
 │  └── Composite Matcher (AND/OR)                        │
 │                                                         │
@@ -200,31 +201,6 @@ Options:
 │  ├── Execute Command                                   │
 │  ├── PowerShell Script                                 │
 │  ├── Log Message                                       │
-│  └── HTTP Request (extensible)                          │
-└─────────────────────────────────────────────────────────┘
-```
-┌─────────────────────────────────────────────────────────┐
-│        Windows Event Automation Engine v0.1.0           │
-├─────────────────────────────────────────────────────────┤
-│  CLI (clap) → Config (TOML) → Engine                    │
-│                                                         │
-│  Event Sources:                                         │
-│  ├── File Watcher (notify crate)                        │
-│  ├── Window Watcher (Win32 API)                         │
-│  ├── Process Monitor (EnumProcesses)                    │
-│  └── Registry Monitor (RegNotifyChangeKeyValue)         │
-│                                                         │
-│  Event Bus (tokio mpsc channels)                        │
-│                                                         │
-│  Rule Engine                                            │
-│  ├── File Pattern Matcher                               │
-│  ├── Event Kind Matcher                                 │
-│  └── Composite Matcher (AND/OR)                         │
-│                                                         │
-│  Action Executor                                        │
-│  ├── Execute Command                                    │
-│  ├── PowerShell Script                                  │
-│  ├── Log Message                                        │
 │  └── HTTP Request (extensible)                          │
 └─────────────────────────────────────────────────────────┘
 ```
