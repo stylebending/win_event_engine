@@ -45,7 +45,7 @@ A universal event automation system for Windows built in Rust. Monitor file syst
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/win_event_engine.git
+git clone https://github.com/stylebending/win_event_engine.git
 cd win_event_engine
 
 # Build in release mode
@@ -78,9 +78,15 @@ cargo run -p engine -- --dry-run
 
 # Disable hot-reloading (enabled by default)
 cargo run -p engine -- --no-watch
+
+# Install as Windows Service (requires admin)
+cargo run -p engine -- --install
+
+# Uninstall Windows Service (requires admin)
+cargo run -p engine -- --uninstall
 ```
 
-## Configuration
+## Windows Service
 
 Create a `config.toml` file in the project root:
 
@@ -168,9 +174,42 @@ Options:
       --dry-run             Run in dry-run mode (don't execute actions)
   -l, --log-level <LEVEL>  Log level (debug, info, warn, error) [default: info]
       --no-watch            Disable hot-reloading of configuration
+      --install             Install as Windows Service (requires admin)
+      --uninstall           Uninstall Windows Service (requires admin)
+      --run-service         Internal: run as Windows Service
       --status              Show engine status and exit
   -h, --help               Print help
   -V, --version            Print version
+```
+
+## Windows Service
+
+The engine can run as a Windows Service for production deployments.
+
+### Installation
+
+```bash
+# Install the service (requires admin)
+engine.exe --install
+
+# Start the service
+sc start WinEventEngine
+```
+
+### Configuration
+
+When running as a service:
+- Config location: `%PROGRAMDATA%\win_event_engine\config\config.toml`
+- Log location: `%PROGRAMDATA%\win_event_engine\logs\service.log`
+
+### Uninstallation
+
+```bash
+# Stop the service first
+sc stop WinEventEngine
+
+# Uninstall the service
+engine.exe --uninstall
 ```
 
 ## Architecture
@@ -372,7 +411,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [x] CLI interface
 - [x] Rule engine
 - [x] Configuration hot-reloading
-- [ ] Windows service wrapper
+- [x] Windows service wrapper
 - [ ] Web dashboard
 - [ ] Metrics and monitoring
 - [ ] Plugin system for custom actions
