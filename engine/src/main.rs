@@ -1,6 +1,7 @@
 mod config;
 mod engine;
 mod plugins;
+mod service;
 
 #[cfg(test)]
 mod integration_tests;
@@ -38,6 +39,18 @@ struct Cli {
     /// Disable hot-reloading of configuration
     #[arg(long)]
     no_watch: bool,
+
+    /// Install as Windows Service (requires admin)
+    #[arg(long)]
+    install: bool,
+
+    /// Uninstall Windows Service (requires admin)
+    #[arg(long)]
+    uninstall: bool,
+
+    /// Run as Windows Service (internal - called by SCM)
+    #[arg(long)]
+    run_service: bool,
 }
 
 #[tokio::main]
@@ -62,6 +75,55 @@ async fn main() {
         "Windows Event Automation Engine v{}",
         env!("CARGO_PKG_VERSION")
     );
+
+    // Handle service install/uninstall commands
+    if cli.install || cli.uninstall {
+        match service::ServiceManagerHandle::new() {
+            Ok(manager) => {
+                if cli.install {
+                    let exe_path = std::env::current_exe()
+                        .map_err(|e| format!("Failed to get executable path: {}", e))
+                        .unwrap_or_else(|e| {
+                            error!("{}", e);
+                            std::process::exit(1);
+                        });
+                    match manager.install(exe_path.to_str().unwrap_or("")) {
+                        Ok(_) => {
+                            println!("Service installed successfully.");
+                            println!(
+                                "Use 'sc start WinEventEngine' or the Services control panel to start."
+                            );
+                        }
+                        Err(e) => {
+                            error!("Failed to install service: {}", e);
+                            std::process::exit(1);
+                        }
+                    }
+                } else if cli.uninstall {
+                    match manager.uninstall() {
+                        Ok(_) => {
+                            println!("Service uninstalled successfully.");
+                        }
+                        Err(e) => {
+                            error!("Failed to uninstall service: {}", e);
+                            std::process::exit(1);
+                        }
+                    }
+                }
+            }
+            Err(e) => {
+                error!("Failed to connect to Service Control Manager: {}", e);
+                std::process::exit(1);
+            }
+        }
+        return;
+    }
+
+    // Run as Windows Service if --run-service flag is provided
+    if cli.run_service {
+        service::run_service();
+        return;
+    }
 
     // Determine config path for hot-reloading
     let config_path = if let Some(ref path) = cli.config {
