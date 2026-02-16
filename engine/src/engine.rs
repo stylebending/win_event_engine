@@ -165,10 +165,14 @@ impl Engine {
             }
             SourceType::ProcessMonitor {
                 process_name,
-                poll_interval_seconds,
+                monitor_threads,
+                monitor_files,
+                monitor_network,
             } => {
                 let mut plugin = ProcessMonitorPlugin::new(&config.name)
-                    .with_poll_interval(*poll_interval_seconds);
+                    .with_thread_monitoring(*monitor_threads)
+                    .with_file_monitoring(*monitor_files)
+                    .with_network_monitoring(*monitor_network);
 
                 if let Some(name) = process_name {
                     plugin = plugin.with_name_filter(name);
@@ -288,14 +292,19 @@ impl Engine {
             TriggerConfig::ProcessStarted { process_name: _ } => Box::new(EventKindMatcher {
                 kind: EventKind::ProcessStarted {
                     pid: 0,
+                    parent_pid: 0,
                     name: String::new(),
+                    path: String::new(),
                     command_line: String::new(),
+                    session_id: 0,
+                    user: String::new(),
                 },
             }),
             TriggerConfig::ProcessStopped { process_name: _ } => Box::new(EventKindMatcher {
                 kind: EventKind::ProcessStopped {
                     pid: 0,
                     name: String::new(),
+                    exit_code: None,
                 },
             }),
             TriggerConfig::RegistryChanged { value_name: _ } => Box::new(EventKindMatcher {

@@ -10,8 +10,18 @@ A universal event automation system for Windows built in Rust. Monitor file syst
 ### Event Sources
 - **File System Watcher** - Monitor file creation, modification, deletion with pattern matching
 - **Window Event Monitor** - Track window focus, creation, destruction using Win32 API
-- **Process Monitor** - Detect process start/stop events with filtering
-- **Registry Monitor** - Watch registry key changes in real-time
+- **Process Monitor** - Kernel-level ETW process monitoring with real-time events (process, thread, file I/O, network)
+  - **Requires Administrator privileges**
+  - Process start/stop events with full details (PID, parent PID, command line, session ID)
+  - Thread creation/destruction monitoring
+  - File I/O operations per process
+  - Network connections per process
+- **Registry Monitor** - Kernel-level ETW registry monitoring with real-time events
+  - **Requires Administrator privileges**
+  - Registry key creation, deletion, modification
+  - Registry value set, delete, modify operations
+  - Process context for each operation
+  - Filter by registry hive and path
 
 ### Rule Engine
 - Pattern-based matching using glob syntax (`*.txt`, `**/*.log`)
@@ -115,7 +125,10 @@ enabled = false
 [[sources]]
 name = "process_monitor"
 type = "process_monitor"
-poll_interval_seconds = 2
+process_name = "chrome"
+monitor_threads = false
+monitor_files = false
+monitor_network = false
 enabled = false
 
 # Registry monitor - watch for system changes
@@ -227,8 +240,8 @@ engine.exe --uninstall
 │  Event Sources:                                         │
 │  ├── File Watcher (notify crate)                        │
 │  ├── Window Watcher (Win32 API)                         │
-│  ├── Process Monitor (EnumProcesses)                    │
-│  └── Registry Monitor (RegNotifyChangeKeyValue)         │
+│  ├── Process Monitor (ETW - kernel-level real-time)     │
+│  └── Registry Monitor (ETW - kernel-level real-time)    │
 │                                                         │
 │  Event Bus (tokio mpsc channels)                        │
 │                                                         │
@@ -302,11 +315,29 @@ The engine supports the following event types:
 - `WindowUnfocused` - Window lost focus
 
 ### Process Events
-- `ProcessStarted` - New process launched
-- `ProcessStopped` - Process terminated
+- `ProcessStarted` - New process launched (includes PID, parent PID, name, path, command line, session ID, user)
+- `ProcessStopped` - Process terminated (includes PID, name, exit code)
 
-### Registry Events
-- `RegistryChanged` - Registry value modified
+### Thread Events
+- `ThreadCreated` - New thread created in a process (includes PID, TID, start address)
+- `ThreadDestroyed` - Thread terminated (includes PID, TID)
+
+### File I/O Events (Process Context)
+- `FileAccessed` - File accessed by a process (includes PID, path, access mask)
+- `FileIoRead` - File read operation (includes PID, path, bytes read)
+- `FileIoWrite` - File write operation (includes PID, path, bytes written)
+- `FileIoDelete` - File deleted by a process (includes PID, path)
+
+### Network Events
+- `NetworkConnectionCreated` - New network connection (includes PID, local/remote addresses, protocol)
+- `NetworkConnectionClosed` - Network connection closed (includes PID, addresses)
+
+### Registry Events (via ETW - includes process context)
+- `RegistryChanged` - Registry operation detected with change type:
+  - **Created** - New registry key created
+  - **Modified** - Registry value modified or set
+  - **Deleted** - Registry key or value deleted
+- **Event metadata includes**: Process name, Process ID, Registry path, Value name (if applicable)
 
 ## Development
 
