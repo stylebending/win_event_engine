@@ -7,7 +7,7 @@ use actions::{Action, ActionExecutor, ExecuteAction, LogAction, LogLevel, PowerS
 use bus::create_event_bus;
 use engine_core::event::EventKind;
 use engine_core::plugin::EventSourcePlugin;
-use rules::{EventKindMatcher, FilePatternMatcher, Rule, RuleMatcher};
+use rules::{EventKindMatcher, FilePatternMatcher, Rule, RuleMatcher, WindowMatcher, WindowEventType};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::mpsc;
@@ -61,6 +61,7 @@ impl Engine {
 
         // Start event processing loop
         let rules = self.rules.clone();
+        let action_executor = self.action_executor.clone();
 
         tokio::spawn(async move {
             info!("Event processing loop started");
@@ -68,7 +69,7 @@ impl Engine {
             while let Some(event) = receiver.recv().await {
                 tracing::debug!("Processing event: {:?} from {}", event.kind, event.source);
 
-                for rule in &rules {
+                for (idx, rule) in rules.iter().enumerate() {
                     if !rule.enabled {
                         continue;
                     }
@@ -76,11 +77,10 @@ impl Engine {
                     if rule.matches(&event) {
                         info!("Rule '{}' matched event from {}", rule.name, event.source);
 
-                        // Execute associated action
-                        // For now, we'll just log - in production you'd map rules to actions
-                        let log_action = LogAction::new(format!("Rule '{}' triggered", rule.name));
-                        if let Err(e) = log_action.execute(&event) {
-                            error!("Action execution failed: {}", e);
+                        let action_name = format!("rule_{}_action", idx);
+                        match action_executor.execute(&action_name, &event) {
+                            Ok(result) => info!("Action executed successfully: {:?}", result),
+                            Err(e) => error!("Action execution failed: {}", e),
                         }
                     }
                 }
@@ -260,13 +260,23 @@ impl Engine {
                         .with_file_pattern(pat)
                         .map_err(|e| EngineError::Config(format!("Invalid pattern: {}", e)))?;
                 }
-                Box::new(matcher)
+                        Box::new(matcher)
             }
-            TriggerConfig::WindowFocused => Box::new(EventKindMatcher {
-                kind: EventKind::WindowFocused {
-                    hwnd: 0,
-                    title: String::new(),
-                },
+            TriggerConfig::WindowFocused {
+                title_contains,
+                process_name,
+            } => Box::new(WindowMatcher {
+                event_type: WindowEventType::Focused,
+                title_contains: title_contains.clone(),
+                process_name: process_name.clone(),
+            }),
+            TriggerConfig::WindowUnfocused {
+                title_contains,
+                process_name,
+            } => Box::new(WindowMatcher {
+                event_type: WindowEventType::Unfocused,
+                title_contains: title_contains.clone(),
+                process_name: process_name.clone(),
             }),
             TriggerConfig::WindowCreated => Box::new(EventKindMatcher {
                 kind: EventKind::WindowCreated {
@@ -356,6 +366,83 @@ impl Engine {
                     // HTTP requests would need additional implementation
                     Box::new(LogAction::new(format!("HTTP request to: {}", url)))
                 }
+                ActionConfig::Media { command } => {
+                    let script = match command.as_str() {
+                        "play" => {
+                            r#"
+Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+public class MediaKeys {
+    [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+    public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
+    public const byte VK_MEDIA_PLAY_PAUSE = 0xB3;
+    public static void PlayPause() {
+        keybd_event(VK_MEDIA_PLAY_PAUSE, 0, 0, UIntPtr.Zero);
+        keybd_event(VK_MEDIA_PLAY_PAUSE, 0, 2, UIntPtr.Zero);
+    }
+}
+"@
+[MediaKeys]::PlayPause()
+"#
+                        }
+                        "pause" => {
+                            r#"
+Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+public class MediaKeys {
+    [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+    public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
+    public const byte VK_MEDIA_PLAY_PAUSE = 0xB3;
+    public static void PlayPause() {
+        keybd_event(VK_MEDIA_PLAY_PAUSE, 0, 0, UIntPtr.Zero);
+        keybd_event(VK_MEDIA_PLAY_PAUSE, 0, 2, UIntPtr.Zero);
+    }
+}
+"@
+[MediaKeys]::PlayPause()
+"#
+                        }
+                        "toggle" => {
+                            r#"
+Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+public class MediaKeys {
+    [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+    public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
+    public const byte VK_MEDIA_PLAY_PAUSE = 0xB3;
+    public static void PlayPause() {
+        keybd_event(VK_MEDIA_PLAY_PAUSE, 0, 0, UIntPtr.Zero);
+        keybd_event(VK_MEDIA_PLAY_PAUSE, 0, 2, UIntPtr.Zero);
+    }
+}
+"@
+[MediaKeys]::PlayPause()
+"#
+                        }
+                        _ => {
+                            r#"
+Add-Type @"
+using System;
+using System.Runtime.InteropServices;
+public class MediaKeys {
+    [DllImport("user32.dll", CharSet = CharSet.Auto, CallingConvention = CallingConvention.StdCall)]
+    public static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);
+    public const byte VK_MEDIA_PLAY_PAUSE = 0xB3;
+    public static void PlayPause() {
+        keybd_event(VK_MEDIA_PLAY_PAUSE, 0, 0, UIntPtr.Zero);
+        keybd_event(VK_MEDIA_PLAY_PAUSE, 0, 2, UIntPtr.Zero);
+    }
+}
+"@
+[MediaKeys]::PlayPause()
+"#
+                        }
+                    };
+                    Box::new(PowerShellAction::new(script))
+                }
             };
 
             self.action_executor.register(action_name, action);
@@ -412,13 +499,14 @@ impl Engine {
 
         if let Some(_sender) = &self.event_sender {
             let rules = self.rules.clone();
+            let action_executor = self.action_executor.clone();
             let mut receiver = bus::create_event_bus(self.config.engine.event_buffer_size).1;
 
             tokio::spawn(async move {
                 while let Some(event) = receiver.recv().await {
                     tracing::debug!("Processing event: {:?} from {}", event.kind, event.source);
 
-                    for rule in &rules {
+                    for (idx, rule) in rules.iter().enumerate() {
                         if !rule.enabled {
                             continue;
                         }
@@ -426,10 +514,10 @@ impl Engine {
                         if rule.matches(&event) {
                             info!("Rule '{}' matched event from {}", rule.name, event.source);
 
-                            let log_action =
-                                LogAction::new(format!("Rule '{}' triggered", rule.name));
-                            if let Err(e) = log_action.execute(&event) {
-                                error!("Action execution failed: {}", e);
+                            let action_name = format!("rule_{}_action", idx);
+                            match action_executor.execute(&action_name, &event) {
+                                Ok(result) => info!("Action executed successfully: {:?}", result),
+                                Err(e) => error!("Action execution failed: {}", e),
                             }
                         }
                     }

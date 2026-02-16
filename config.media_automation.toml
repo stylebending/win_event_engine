@@ -1,0 +1,25 @@
+[engine]
+event_buffer_size = 1000
+log_level = "info"
+
+# Window watcher - monitor window focus events
+[[sources]]
+name = "window_focus_monitor"
+type = "window_watcher"
+enabled = true
+
+# Rule: When editor window gains focus → play media
+[[rules]]
+name = "editor_focused_play"
+description = "Start media playback when editor window gains focus"
+trigger = { type = "window_focused", title_contains = "nvim" }
+action = { type = "media", command = "play" }
+enabled = true
+
+# Rule: When focus leaves editor → pause media
+[[rules]]
+name = "editor_unfocused_stop"
+description = "Pause media when editor loses focus"
+trigger = { type = "window_unfocused", title_contains = "nvim" }
+action = { type = "media", command = "pause" }
+enabled = true

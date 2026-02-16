@@ -115,7 +115,18 @@ pub enum TriggerConfig {
         #[serde(default)]
         pattern: Option<String>,
     },
-    WindowFocused,
+    WindowFocused {
+        #[serde(default)]
+        title_contains: Option<String>,
+        #[serde(default)]
+        process_name: Option<String>,
+    },
+    WindowUnfocused {
+        #[serde(default)]
+        title_contains: Option<String>,
+        #[serde(default)]
+        process_name: Option<String>,
+    },
     WindowCreated,
     ProcessStarted {
         #[serde(default)]
@@ -171,6 +182,9 @@ pub enum ActionConfig {
         headers: HashMap<String, String>,
         #[serde(default)]
         body: Option<String>,
+    },
+    Media {
+        command: String,
     },
 }
 
