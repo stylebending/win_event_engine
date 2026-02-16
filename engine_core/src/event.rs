@@ -59,6 +59,10 @@ pub enum EventKind {
         hwnd: isize,
         title: String,
     },
+    WindowUnfocused {
+        hwnd: isize,
+        title: String,
+    },
 
     // Process Events
     ProcessStarted {

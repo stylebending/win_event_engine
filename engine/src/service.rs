@@ -263,6 +263,7 @@ pub fn get_default_config_path() -> PathBuf {
 }
 
 #[derive(Debug)]
+#[allow(dead_code)]
 pub enum ServiceError {
     OpenScManager(String),
     Install(String),

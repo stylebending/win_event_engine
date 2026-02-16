@@ -25,6 +25,7 @@ A universal event automation system for Windows built in Rust. Monitor file syst
 - Structured logging with configurable levels
 - HTTP webhooks (extensible)
 - Windows notifications (extensible)
+- Media playback control (play/pause/toggle)
 
 ### Production Ready
 - TOML-based configuration
@@ -159,7 +160,7 @@ action = { type = "notify", title = "Chrome Started", message = "Google Chrome h
 enabled = false
 ```
 
-See `config.toml.example` and `rules.toml.example` for more examples.
+See `config.toml.example`, `rules.toml.example`, and `config.media_automation.toml` for more examples.
 
 ## CLI Usage
 
@@ -298,6 +299,7 @@ The engine supports the following event types:
 - `WindowCreated` - New window opened
 - `WindowDestroyed` - Window closed
 - `WindowFocused` - Window received focus
+- `WindowUnfocused` - Window lost focus
 
 ### Process Events
 - `ProcessStarted` - New process launched

@@ -73,6 +73,89 @@ impl RuleMatcher for EventKindMatcher {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct WindowMatcher {
+    pub event_type: WindowEventType,
+    pub title_contains: Option<String>,
+    pub process_name: Option<String>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum WindowEventType {
+    Focused,
+    Unfocused,
+    Created,
+    Destroyed,
+}
+
+impl RuleMatcher for WindowMatcher {
+    fn matches(&self, event: &Event) -> bool {
+        let (event_type, title, process_name) = match &event.kind {
+            EventKind::WindowFocused { hwnd: _, title } => {
+                let process_name = event
+                    .metadata
+                    .get("process_name")
+                    .cloned()
+                    .unwrap_or_default();
+                (WindowEventType::Focused, title.clone(), process_name)
+            }
+            EventKind::WindowUnfocused { hwnd: _, title } => {
+                let process_name = event
+                    .metadata
+                    .get("process_name")
+                    .cloned()
+                    .unwrap_or_default();
+                (WindowEventType::Unfocused, title.clone(), process_name)
+            }
+            EventKind::WindowCreated {
+                hwnd: _,
+                title,
+                process_id: _,
+            } => (WindowEventType::Created, title.clone(), String::new()),
+            EventKind::WindowDestroyed { hwnd: _ } => {
+                (WindowEventType::Destroyed, String::new(), String::new())
+            }
+            _ => return false,
+        };
+
+        if event_type != self.event_type {
+            return false;
+        }
+
+        if let Some(ref title_filter) = self.title_contains {
+            if !title.to_lowercase().contains(&title_filter.to_lowercase()) {
+                return false;
+            }
+        }
+
+        if let Some(ref process_filter) = self.process_name {
+            if !process_name
+                .to_lowercase()
+                .contains(&process_filter.to_lowercase())
+            {
+                return false;
+            }
+        }
+
+        true
+    }
+
+    fn description(&self) -> String {
+        let mut desc = format!("Window {:?} event", self.event_type);
+        if let Some(ref title) = self.title_contains {
+            desc.push_str(&format!(" with title containing '{}'", title));
+        }
+        if let Some(ref process) = self.process_name {
+            desc.push_str(&format!(" from process '{}'", process));
+        }
+        desc
+    }
+
+    fn clone_box(&self) -> Box<dyn RuleMatcher> {
+        Box::new(self.clone())
+    }
+}
+
 #[derive(Debug)]
 pub struct FilePatternMatcher {
     pub event_type: FileEventType,
@@ -250,6 +333,10 @@ fn matches_event_kind(expected: &EventKind, actual: &EventKind) -> bool {
         (EventKind::FileCreated { path: p1 }, EventKind::FileCreated { path: p2 }) => p1 == p2,
         (EventKind::FileModified { path: p1 }, EventKind::FileModified { path: p2 }) => p1 == p2,
         (EventKind::FileDeleted { path: p1 }, EventKind::FileDeleted { path: p2 }) => p1 == p2,
+        (EventKind::WindowFocused { .. }, EventKind::WindowFocused { .. }) => true,
+        (EventKind::WindowUnfocused { .. }, EventKind::WindowUnfocused { .. }) => true,
+        (EventKind::WindowCreated { .. }, EventKind::WindowCreated { .. }) => true,
+        (EventKind::WindowDestroyed { .. }, EventKind::WindowDestroyed { .. }) => true,
         _ => false,
     }
 }
