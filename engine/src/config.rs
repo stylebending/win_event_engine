@@ -71,8 +71,12 @@ pub enum SourceType {
     ProcessMonitor {
         #[serde(default)]
         process_name: Option<String>,
-        #[serde(default = "default_poll_interval")]
-        poll_interval_seconds: u64,
+        #[serde(default)]
+        monitor_threads: bool,
+        #[serde(default)]
+        monitor_files: bool,
+        #[serde(default)]
+        monitor_network: bool,
     },
     RegistryMonitor {
         root: String,
@@ -84,10 +88,6 @@ pub enum SourceType {
 
 fn default_true() -> bool {
     true
-}
-
-fn default_poll_interval() -> u64 {
-    2
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]

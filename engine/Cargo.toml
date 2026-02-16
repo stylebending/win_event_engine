@@ -18,7 +18,7 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["fmt"] }
 notify = "6"
 clap = { version = "4", features = ["derive"] }
-windows = { version = "0.52", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging", "Win32_UI_Accessibility", "Win32_System_Threading", "Win32_System_ProcessStatus", "Win32_System_Registry", "Win32_System_Services", "Win32_Security"] }
+windows = { version = "0.52", features = ["Win32_Foundation", "Win32_UI_WindowsAndMessaging", "Win32_UI_Accessibility", "Win32_System_Threading", "Win32_System_ProcessStatus", "Win32_System_Registry", "Win32_System_Services", "Win32_Security", "Win32_System_Diagnostics_Etw", "Win32_Storage_FileSystem", "Win32_System_Time", "Win32_System_Diagnostics_ToolHelp"] }
 windows-service = "0.8"
 lazy_static = "1.4"
 regex = "1"
