@@ -267,11 +267,23 @@ curl http://127.0.0.1:9090/api/snapshot
 # Health check
 curl http://127.0.0.1:9090/health
 
-# Web UI
-curl http://127.0.0.1:9090/
+# Real-time Web Dashboard (opens in browser)
+http://127.0.0.1:9090/
 ```
 
 **Note**: The metrics endpoint is only accessible from localhost for security.
+
+### Real-Time Dashboard
+
+The built-in web dashboard provides real-time monitoring via WebSocket:
+
+- **Live Event Stream** - Watch events as they are processed
+- **Real-time Charts** - Events/sec, rule matches/sec, actions/sec with 60-second history
+- **System Health** - Uptime, active plugins, and rules count
+- **Event Filtering** - Filter by events, rules, or actions
+- **Auto-reconnect** - Dashboard reconnects automatically if connection drops
+
+Open `http://127.0.0.1:9090` in your browser to access the dashboard.
 
 ## Architecture
 
@@ -501,7 +513,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [x] Configuration hot-reloading
 - [x] Windows service wrapper
 - [x] Metrics and monitoring
-- [ ] Web dashboard
+- [x] Web dashboard (real-time)
 - [ ] Plugin system for custom actions
 
 ## Support

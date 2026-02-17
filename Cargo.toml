@@ -3,7 +3,7 @@ resolver = "2"
 members = ["actions", "bus", "engine", "engine_core", "metrics", "rules"]
 
 [workspace.package]
-version = "0.1.4"
+version = "0.1.5"
 edition = "2024"
 authors = ["Your Name"]
 license = "MIT"
