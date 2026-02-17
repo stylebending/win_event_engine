@@ -7,11 +7,16 @@ use actions::{Action, ActionExecutor, ExecuteAction, LogAction, LogLevel, PowerS
 use bus::create_event_bus;
 use engine_core::event::EventKind;
 use engine_core::plugin::EventSourcePlugin;
+use metrics::{
+    record_action_execution, record_config_reload, record_event,
+    record_event_processing_duration, record_rule_match, record_rule_match_duration,
+    record_rule_evaluation, MetricsCollector,
+};
 use rules::{EventKindMatcher, FilePatternMatcher, Rule, RuleMatcher, WindowMatcher, WindowEventType};
 use std::path::PathBuf;
 use std::sync::Arc;
 use tokio::sync::mpsc;
-use tokio::time::{Duration, timeout};
+use tokio::time::{Duration, timeout, Instant};
 use tracing::{error, info, warn};
 
 pub struct Engine {
@@ -23,10 +28,13 @@ pub struct Engine {
     event_sender: Option<mpsc::Sender<engine_core::event::Event>>,
     shutdown_flag: Arc<std::sync::atomic::AtomicBool>,
     config_reload_rx: Option<mpsc::Receiver<()>>,
+    metrics: Arc<MetricsCollector>,
 }
 
 impl Engine {
     pub fn new(config: Config, config_path: Option<PathBuf>) -> Self {
+        let metrics = Arc::new(MetricsCollector::new());
+        
         Self {
             config,
             config_path,
@@ -36,7 +44,13 @@ impl Engine {
             event_sender: None,
             shutdown_flag: Arc::new(std::sync::atomic::AtomicBool::new(false)),
             config_reload_rx: None,
+            metrics,
         }
+    }
+    
+    /// Get a reference to the metrics collector
+    pub fn metrics(&self) -> Arc<MetricsCollector> {
+        self.metrics.clone()
     }
 
     pub fn take_config_reload_rx(&mut self) -> Option<mpsc::Receiver<()>> {
@@ -62,11 +76,19 @@ impl Engine {
         // Start event processing loop
         let rules = self.rules.clone();
         let action_executor = self.action_executor.clone();
+        let metrics = self.metrics.clone();
 
         tokio::spawn(async move {
             info!("Event processing loop started");
 
             while let Some(event) = receiver.recv().await {
+                let start_time = Instant::now();
+                let event_source = event.source.clone();
+                let event_type = format!("{:?}", event.kind);
+                
+                // Record event received
+                record_event(&metrics, &event_source, &event_type);
+                
                 tracing::debug!("Processing event: {:?} from {}", event.kind, event.source);
 
                 for (idx, rule) in rules.iter().enumerate() {
@@ -74,16 +96,46 @@ impl Engine {
                         continue;
                     }
 
-                    if rule.matches(&event) {
+                    // Record rule evaluation
+                    record_rule_evaluation(&metrics, &rule.name);
+                    
+                    let match_start = Instant::now();
+                    let matched = rule.matches(&event);
+                    record_rule_match_duration(&metrics, &rule.name, match_start.elapsed());
+
+                    if matched {
+                        // Record successful rule match
+                        record_rule_match(&metrics, &rule.name);
                         info!("Rule '{}' matched event from {}", rule.name, event.source);
 
                         let action_name = format!("rule_{}_action", idx);
+                        let action_start = Instant::now();
+                        
                         match action_executor.execute(&action_name, &event) {
-                            Ok(result) => info!("Action executed successfully: {:?}", result),
-                            Err(e) => error!("Action execution failed: {}", e),
+                            Ok(result) => {
+                                record_action_execution(
+                                    &metrics, 
+                                    &action_name, 
+                                    true, 
+                                    action_start.elapsed()
+                                );
+                                info!("Action executed successfully: {:?}", result);
+                            }
+                            Err(e) => {
+                                record_action_execution(
+                                    &metrics, 
+                                    &action_name, 
+                                    false, 
+                                    action_start.elapsed()
+                                );
+                                error!("Action execution failed: {}", e);
+                            }
                         }
                     }
                 }
+                
+                // Record total event processing duration
+                record_event_processing_duration(&metrics, start_time.elapsed());
             }
 
             info!("Event processing loop stopped");
@@ -485,6 +537,7 @@ public class MediaKeys {
                 "New configuration validation failed: {}, keeping current config",
                 e
             );
+            record_config_reload(&self.metrics, false);
             return Err(EngineError::Config(e.to_string()));
         }
 
@@ -509,10 +562,17 @@ public class MediaKeys {
         if let Some(_sender) = &self.event_sender {
             let rules = self.rules.clone();
             let action_executor = self.action_executor.clone();
+            let metrics = self.metrics.clone();
             let mut receiver = bus::create_event_bus(self.config.engine.event_buffer_size).1;
 
             tokio::spawn(async move {
                 while let Some(event) = receiver.recv().await {
+                    let start_time = Instant::now();
+                    let event_source = event.source.clone();
+                    let event_type = format!("{:?}", event.kind);
+                    
+                    record_event(&metrics, &event_source, &event_type);
+                    
                     tracing::debug!("Processing event: {:?} from {}", event.kind, event.source);
 
                     for (idx, rule) in rules.iter().enumerate() {
@@ -520,19 +580,48 @@ public class MediaKeys {
                             continue;
                         }
 
-                        if rule.matches(&event) {
+                        record_rule_evaluation(&metrics, &rule.name);
+                        
+                        let match_start = Instant::now();
+                        let matched = rule.matches(&event);
+                        record_rule_match_duration(&metrics, &rule.name, match_start.elapsed());
+
+                        if matched {
+                            record_rule_match(&metrics, &rule.name);
                             info!("Rule '{}' matched event from {}", rule.name, event.source);
 
                             let action_name = format!("rule_{}_action", idx);
+                            let action_start = Instant::now();
+                            
                             match action_executor.execute(&action_name, &event) {
-                                Ok(result) => info!("Action executed successfully: {:?}", result),
-                                Err(e) => error!("Action execution failed: {}", e),
+                                Ok(result) => {
+                                    record_action_execution(
+                                        &metrics, 
+                                        &action_name, 
+                                        true, 
+                                        action_start.elapsed()
+                                    );
+                                    info!("Action executed successfully: {:?}", result);
+                                }
+                                Err(e) => {
+                                    record_action_execution(
+                                        &metrics, 
+                                        &action_name, 
+                                        false, 
+                                        action_start.elapsed()
+                                    );
+                                    error!("Action execution failed: {}", e);
+                                }
                             }
                         }
                     }
+                    
+                    record_event_processing_duration(&metrics, start_time.elapsed());
                 }
             });
         }
+        
+        record_config_reload(&self.metrics, true);
 
         let status = self.get_status();
         info!(

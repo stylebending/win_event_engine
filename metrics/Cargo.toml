@@ -1,0 +1,15 @@
+[package]
+name = "metrics"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+chrono = { version = "0.4", features = ["serde"] }
+dashmap = "5"
+axum = "0.7"
+
+[dev-dependencies]
+tokio-test = "0.4"
