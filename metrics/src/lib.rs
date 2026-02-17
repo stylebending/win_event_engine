@@ -8,8 +8,56 @@ use std::time::{Duration, Instant};
 use chrono::{DateTime, Utc};
 use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
-use tokio::sync::RwLock;
+use tokio::sync::{broadcast, RwLock};
 use tracing::{debug, info};
+
+/// Real-time metric update events for WebSocket broadcast
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type", content = "data")]
+pub enum MetricUpdate {
+    /// A new event was received
+    #[serde(rename = "event_received")]
+    EventReceived {
+        timestamp: DateTime<Utc>,
+        source: String,
+        event_type: String,
+    },
+
+    /// A rule was evaluated
+    #[serde(rename = "rule_evaluated")]
+    RuleEvaluated {
+        timestamp: DateTime<Utc>,
+        rule_name: String,
+    },
+
+    /// A rule matched successfully
+    #[serde(rename = "rule_matched")]
+    RuleMatched {
+        timestamp: DateTime<Utc>,
+        rule_name: String,
+    },
+
+    /// An action was executed
+    #[serde(rename = "action_executed")]
+    ActionExecuted {
+        timestamp: DateTime<Utc>,
+        action_name: String,
+        success: bool,
+    },
+
+    /// Periodic full metrics snapshot
+    #[serde(rename = "snapshot")]
+    Snapshot(MetricsSnapshot),
+
+    /// System health update
+    #[serde(rename = "health")]
+    Health {
+        timestamp: DateTime<Utc>,
+        uptime_seconds: f64,
+        active_plugins: usize,
+        active_rules: usize,
+    },
+}
 
 /// Default retention period for regular metrics (1 hour)
 const DEFAULT_RETENTION_SECONDS: u64 = 3600;
@@ -71,6 +119,8 @@ pub struct MetricsCollector {
     error_retention_seconds: u64,
     /// Cleanup task handle
     cleanup_handle: RwLock<Option<tokio::task::JoinHandle<()>>>,
+    /// Broadcast channel for real-time metric updates
+    update_tx: broadcast::Sender<MetricUpdate>,
 }
 
 impl Default for MetricsCollector {
@@ -87,6 +137,9 @@ impl MetricsCollector {
 
     /// Create a metrics collector with custom retention periods
     pub fn with_retention(retention_seconds: u64, error_retention_seconds: u64) -> Self {
+        // Create broadcast channel (capacity 1024 - drops old messages if clients slow)
+        let (update_tx, _) = broadcast::channel(1024);
+
         let collector = Self {
             metadata: DashMap::new(),
             counters: DashMap::new(),
@@ -98,6 +151,7 @@ impl MetricsCollector {
             retention_seconds,
             error_retention_seconds,
             cleanup_handle: RwLock::new(None),
+            update_tx,
         };
 
         // Register built-in metadata
@@ -502,6 +556,77 @@ impl MetricsCollector {
                 .collect();
             format!("{{{}}}", parts.join(","))
         }
+    }
+
+    /// Subscribe to real-time metric updates
+    pub fn subscribe(&self) -> broadcast::Receiver<MetricUpdate> {
+        self.update_tx.subscribe()
+    }
+
+    /// Broadcast an update to all subscribers
+    pub fn broadcast(&self, update: MetricUpdate) {
+        // Use let _ to ignore send errors (no subscribers is OK)
+        let _ = self.update_tx.send(update);
+    }
+
+    /// Record an event and broadcast the update
+    pub fn record_event_with_broadcast(&self, plugin: &str, event_type: &str) {
+        record_event(self, plugin, event_type);
+
+        self.broadcast(MetricUpdate::EventReceived {
+            timestamp: Utc::now(),
+            source: plugin.to_string(),
+            event_type: event_type.to_string(),
+        });
+    }
+
+    /// Record a rule match and broadcast the update
+    pub fn record_rule_match_with_broadcast(&self, rule_name: &str) {
+        record_rule_match(self, rule_name);
+
+        self.broadcast(MetricUpdate::RuleMatched {
+            timestamp: Utc::now(),
+            rule_name: rule_name.to_string(),
+        });
+    }
+
+    /// Record a rule evaluation and broadcast the update
+    pub fn record_rule_evaluation_with_broadcast(&self, rule_name: &str) {
+        record_rule_evaluation(self, rule_name);
+
+        self.broadcast(MetricUpdate::RuleEvaluated {
+            timestamp: Utc::now(),
+            rule_name: rule_name.to_string(),
+        });
+    }
+
+    /// Record an action execution and broadcast the update
+    pub fn record_action_execution_with_broadcast(
+        &self,
+        action_name: &str,
+        success: bool,
+        duration: Duration,
+    ) {
+        record_action_execution(self, action_name, success, duration);
+
+        self.broadcast(MetricUpdate::ActionExecuted {
+            timestamp: Utc::now(),
+            action_name: action_name.to_string(),
+            success,
+        });
+    }
+
+    /// Record a config reload and broadcast the update
+    pub fn record_config_reload_with_broadcast(&self, success: bool) {
+        record_config_reload(self, success);
+
+        // Also broadcast a health update with system status
+        self.broadcast(MetricUpdate::Health {
+            timestamp: Utc::now(),
+            uptime_seconds: self.get_uptime_seconds(),
+            active_plugins: 0,  // Will be updated from snapshot
+            active_rules: 0,    // Will be updated from snapshot
+        });
     }
 }
 

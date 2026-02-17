@@ -8,9 +8,7 @@ use bus::create_event_bus;
 use engine_core::event::EventKind;
 use engine_core::plugin::EventSourcePlugin;
 use metrics::{
-    record_action_execution, record_config_reload, record_event,
-    record_event_processing_duration, record_rule_match, record_rule_match_duration,
-    record_rule_evaluation, MetricsCollector,
+    record_event_processing_duration, record_rule_match_duration, MetricsCollector,
 };
 use rules::{EventKindMatcher, FilePatternMatcher, Rule, RuleMatcher, WindowMatcher, WindowEventType};
 use std::path::PathBuf;
@@ -85,10 +83,10 @@ impl Engine {
                 let start_time = Instant::now();
                 let event_source = event.source.clone();
                 let event_type = format!("{:?}", event.kind);
-                
-                // Record event received
-                record_event(&metrics, &event_source, &event_type);
-                
+
+                // Record event received with broadcast
+                metrics.record_event_with_broadcast(&event_source, &event_type);
+
                 tracing::debug!("Processing event: {:?} from {}", event.kind, event.source);
 
                 for (idx, rule) in rules.iter().enumerate() {
@@ -96,36 +94,34 @@ impl Engine {
                         continue;
                     }
 
-                    // Record rule evaluation
-                    record_rule_evaluation(&metrics, &rule.name);
-                    
+                    // Record rule evaluation with broadcast
+                    metrics.record_rule_evaluation_with_broadcast(&rule.name);
+
                     let match_start = Instant::now();
                     let matched = rule.matches(&event);
                     record_rule_match_duration(&metrics, &rule.name, match_start.elapsed());
 
                     if matched {
-                        // Record successful rule match
-                        record_rule_match(&metrics, &rule.name);
+                        // Record successful rule match with broadcast
+                        metrics.record_rule_match_with_broadcast(&rule.name);
                         info!("Rule '{}' matched event from {}", rule.name, event.source);
 
                         let action_name = format!("rule_{}_action", idx);
                         let action_start = Instant::now();
-                        
+
                         match action_executor.execute(&action_name, &event) {
                             Ok(result) => {
-                                record_action_execution(
-                                    &metrics, 
-                                    &action_name, 
-                                    true, 
+                                metrics.record_action_execution_with_broadcast(
+                                    &action_name,
+                                    true,
                                     action_start.elapsed()
                                 );
                                 info!("Action executed successfully: {:?}", result);
                             }
                             Err(e) => {
-                                record_action_execution(
-                                    &metrics, 
-                                    &action_name, 
-                                    false, 
+                                metrics.record_action_execution_with_broadcast(
+                                    &action_name,
+                                    false,
                                     action_start.elapsed()
                                 );
                                 error!("Action execution failed: {}", e);
@@ -133,7 +129,7 @@ impl Engine {
                         }
                     }
                 }
-                
+
                 // Record total event processing duration
                 record_event_processing_duration(&metrics, start_time.elapsed());
             }
@@ -537,7 +533,7 @@ public class MediaKeys {
                 "New configuration validation failed: {}, keeping current config",
                 e
             );
-            record_config_reload(&self.metrics, false);
+            self.metrics.record_config_reload_with_broadcast(false);
             return Err(EngineError::Config(e.to_string()));
         }
 
@@ -571,8 +567,8 @@ public class MediaKeys {
                     let event_source = event.source.clone();
                     let event_type = format!("{:?}", event.kind);
                     
-                    record_event(&metrics, &event_source, &event_type);
-                    
+                    metrics.record_event_with_broadcast(&event_source, &event_type);
+
                     tracing::debug!("Processing event: {:?} from {}", event.kind, event.source);
 
                     for (idx, rule) in rules.iter().enumerate() {
@@ -580,34 +576,32 @@ public class MediaKeys {
                             continue;
                         }
 
-                        record_rule_evaluation(&metrics, &rule.name);
-                        
+                        metrics.record_rule_evaluation_with_broadcast(&rule.name);
+
                         let match_start = Instant::now();
                         let matched = rule.matches(&event);
                         record_rule_match_duration(&metrics, &rule.name, match_start.elapsed());
 
                         if matched {
-                            record_rule_match(&metrics, &rule.name);
+                            metrics.record_rule_match_with_broadcast(&rule.name);
                             info!("Rule '{}' matched event from {}", rule.name, event.source);
 
                             let action_name = format!("rule_{}_action", idx);
                             let action_start = Instant::now();
-                            
+
                             match action_executor.execute(&action_name, &event) {
                                 Ok(result) => {
-                                    record_action_execution(
-                                        &metrics, 
-                                        &action_name, 
-                                        true, 
+                                    metrics.record_action_execution_with_broadcast(
+                                        &action_name,
+                                        true,
                                         action_start.elapsed()
                                     );
                                     info!("Action executed successfully: {:?}", result);
                                 }
                                 Err(e) => {
-                                    record_action_execution(
-                                        &metrics, 
-                                        &action_name, 
-                                        false, 
+                                    metrics.record_action_execution_with_broadcast(
+                                        &action_name,
+                                        false,
                                         action_start.elapsed()
                                     );
                                     error!("Action execution failed: {}", e);
@@ -615,13 +609,13 @@ public class MediaKeys {
                             }
                         }
                     }
-                    
+
                     record_event_processing_duration(&metrics, start_time.elapsed());
                 }
             });
         }
         
-        record_config_reload(&self.metrics, true);
+        self.metrics.record_config_reload_with_broadcast(true);
 
         let status = self.get_status();
         info!(
