@@ -226,6 +226,53 @@ sc stop WinEventEngine
 engine.exe --uninstall
 ```
 
+## Metrics and Monitoring
+
+The engine includes built-in metrics collection with a local HTTP endpoint for monitoring.
+
+### Available Metrics
+
+The following metrics are collected automatically:
+
+- **events_total** - Total events processed by source and type
+- **events_dropped_total** - Events dropped due to full buffer
+- **events_processing_duration_seconds** - Event processing latency
+- **rules_evaluated_total** - Rule evaluations by rule name
+- **rules_matched_total** - Successful rule matches
+- **rules_match_duration_seconds** - Rule matching latency
+- **actions_executed_total** - Action executions by name and status
+- **actions_execution_duration_seconds** - Action execution latency
+- **plugins_events_generated_total** - Events generated per plugin
+- **plugins_errors_total** - Plugin errors
+- **config_reload_total** - Configuration reloads
+- **engine_uptime_seconds** - Engine uptime
+
+### Retention
+
+Metrics are retained with a sliding window:
+- **Regular metrics**: 1 hour
+- **Error metrics**: 24 hours
+
+### Accessing Metrics
+
+The metrics endpoint runs on `127.0.0.1:9090` (localhost only):
+
+```bash
+# Prometheus format
+curl http://127.0.0.1:9090/metrics
+
+# JSON snapshot
+curl http://127.0.0.1:9090/api/snapshot
+
+# Health check
+curl http://127.0.0.1:9090/health
+
+# Web UI
+curl http://127.0.0.1:9090/
+```
+
+**Note**: The metrics endpoint is only accessible from localhost for security.
+
 ## Architecture
 
 ```
@@ -255,6 +302,9 @@ engine.exe --uninstall
 │  ├── PowerShell Script                                  │
 │  ├── Log Message                                        │
 │  └── HTTP Request (extensible)                          │
+│                                                         │
+│  Metrics Collector (1h sliding window)                  │
+│  └── HTTP Endpoint @ 127.0.0.1:9090                     │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -290,6 +340,11 @@ win_event_engine/
 ├── bus/                # Event bus implementation
 │   ├── src/
 │   │   └── lib.rs
+│   └── Cargo.toml
+├── metrics/            # Metrics collection and HTTP endpoint
+│   ├── src/
+│   │   ├── lib.rs      # Metrics collector
+│   │   └── server.rs   # HTTP server
 │   └── Cargo.toml
 ├── config.toml.example # Example configuration
 ├── rules.toml.example  # Example rules
@@ -445,8 +500,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [x] Rule engine
 - [x] Configuration hot-reloading
 - [x] Windows service wrapper
+- [x] Metrics and monitoring
 - [ ] Web dashboard
-- [ ] Metrics and monitoring
 - [ ] Plugin system for custom actions
 
 ## Support

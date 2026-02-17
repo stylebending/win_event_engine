@@ -7,7 +7,9 @@ mod service;
 mod integration_tests;
 
 use clap::Parser;
+use metrics::server::MetricsServer;
 use std::path::PathBuf;
+use std::sync::Arc;
 use tracing::{Level, error, info};
 use tracing_subscriber;
 
@@ -216,6 +218,17 @@ async fn main() {
         std::process::exit(1);
     }
 
+    // Start metrics server and cleanup task
+    let metrics = engine_instance.metrics();
+    metrics.start_cleanup_task().await;
+    let metrics_server = MetricsServer::new(metrics, 9090);
+    tokio::spawn(async move {
+        if let Err(e) = metrics_server.start().await {
+            error!("Metrics server error: {}", e);
+        }
+    });
+    info!("Metrics server available at http://127.0.0.1:9090");
+
     let status = engine_instance.get_status();
     info!(
         "Engine running with {} plugins and {} rules",
@@ -290,6 +303,7 @@ async fn main() {
     }
 
     // Shutdown
+    engine_for_shutdown.metrics().stop_cleanup_task().await;
     engine_for_shutdown.shutdown().await;
     info!("Engine stopped");
 }

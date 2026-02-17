@@ -27,6 +27,7 @@ engine_core = { path = "../engine_core" }
 bus = { path = "../bus" }
 rules = { path = "../rules" }
 actions = { path = "../actions" }
+metrics = { path = "../metrics" }
 
 [dev-dependencies]
 tempfile = "3"
