@@ -17,22 +17,109 @@ A universal event automation system for Windows built in Rust. Monitor file syst
 - **Web Dashboard** - Real-time monitoring via WebSocket at `http://127.0.0.1:9090`
 - **Production Ready** - Windows service support, structured logging, hot-reloading
 
-## Quick Start
+## First Time Setup (5 minutes)
 
-### Prerequisites
+### Step 1: Download
 
+Download `engine.exe` from [GitHub Releases](https://github.com/stylebending/win_event_engine/releases) and save it to a folder (e.g., `C:\Tools\win_event_engine\`).
+
+**Requirements:**
 - Windows 10/11
-- [Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe) (usually pre-installed)
+- [Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe) (usually pre-installed on most systems)
 
-### Installation
+### Step 2: Create Your First Config
 
-**Option 1: Download Release**
-```bash
-# Download from GitHub Releases
-# No compilation needed - standalone executable
+Create a file named `config.toml` in the same folder:
+
+```toml
+[engine]
+event_buffer_size = 100
+log_level = "info"
+
+# Watch for new files in a test directory
+[[sources]]
+name = "my_watcher"
+type = "file_watcher"
+paths = ["./test_folder"]
+pattern = "*.txt"
+enabled = true
+
+# Log when text files are created
+[[rules]]
+name = "text_file_alert"
+description = "Notify when text files are created"
+trigger = { type = "file_created", pattern = "*.txt" }
+action = { type = "log", message = "New text file created!", level = "info" }
+enabled = true
 ```
 
-**Option 2: Build from Source**
+### Step 3: Run the Engine
+
+Open a terminal in the folder with `engine.exe`:
+
+```bash
+# Create a test folder
+mkdir test_folder
+
+# Start the engine
+engine.exe -c config.toml
+
+# The engine is now running!
+# You'll see output showing it's watching the test folder
+```
+
+### Step 4: Test It
+
+In another terminal, create a test file:
+
+```bash
+echo "Hello World" > test_folder\test.txt
+```
+
+You should see in the engine output:
+```
+[LUA] New text file created!
+```
+
+### Step 5: View the Dashboard
+
+Open your browser and go to: **http://127.0.0.1:9090**
+
+You'll see real-time events as they happen!
+
+## Next Steps
+
+- **Learn More** - See the [full documentation](https://github.com/stylebending/win_event_engine/wiki)
+- **Configuration** - Check out the [Configuration Reference](https://github.com/stylebending/win_event_engine/wiki/Configuration-Reference)
+- **Write Scripts** - Learn [Lua scripting](https://github.com/stylebending/win_event_engine/wiki/Lua-Scripting-API)
+- **More Examples** - See [config.toml.example](config.toml.example)
+
+## Common Commands
+
+```bash
+# Run with a config file
+engine.exe -c config.toml
+
+# Check if the engine is running
+engine.exe --status
+
+# Enable debug logging
+engine.exe -c config.toml --log-level debug
+
+# Dry run (see what would happen without executing)
+engine.exe -c config.toml --dry-run
+
+# Install as Windows Service (requires admin)
+engine.exe --install
+
+# View help
+engine.exe --help
+```
+
+## For Developers
+
+**Build from Source** (requires [Rust](https://rustup.rs/)):
+
 ```bash
 git clone https://github.com/stylebending/win_event_engine.git
 cd win_event_engine
@@ -40,37 +127,7 @@ cargo build --release -p engine
 # Executable: target/release/engine.exe
 ```
 
-### Basic Usage
-
-```bash
-# Run with a configuration file
-cargo run -p engine -- -c config.toml
-
-# Check status
-cargo run -p engine -- --status
-
-# Install as Windows Service (requires admin)
-cargo run -p engine -- --install
-```
-
-### Simple Configuration
-
-```toml
-[engine]
-event_buffer_size = 1000
-log_level = "info"
-
-[[sources]]
-name = "downloads_watcher"
-type = "file_watcher"
-paths = ["C:/Users/%USERNAME%/Downloads"]
-pattern = "*.exe"
-
-[[rules]]
-name = "executable_alert"
-trigger = { type = "file_created", pattern = "*.exe" }
-action = { type = "log", message = "Executable downloaded!", level = "warn" }
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
 
 ## Web Dashboard
 
@@ -125,7 +182,7 @@ See [Lua Scripting API](https://github.com/stylebending/win_event_engine/wiki/Lu
 
 - **[Configuration Reference](https://github.com/stylebending/win_event_engine/wiki/Configuration-Reference)** - Complete config options
 - **[Event Types](https://github.com/stylebending/win_event_engine/wiki/Event-Types)** - All available event types
-- **[Lua Scripting API](https://github.com/stylebending/win_event_engine/wiki/Lua-Scripting-API)** - Writing custom scripts
+- **[Lua Scripting API](https://github.com/stylebending/win_event_engine/wiki/Lua-Scripting-API)** - Custom script documentation
 - **[Web Dashboard](https://github.com/stylebending/win_event_engine/wiki/Web-Dashboard)** - Monitoring and metrics
 - **[Troubleshooting](https://github.com/stylebending/win_event_engine/wiki/Troubleshooting)** - Common issues and solutions
 - **[Architecture](https://github.com/stylebending/win_event_engine/wiki/Architecture)** - Technical deep-dive
