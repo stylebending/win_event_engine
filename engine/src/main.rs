@@ -9,8 +9,7 @@ mod integration_tests;
 use clap::Parser;
 use metrics::server::MetricsServer;
 use std::path::PathBuf;
-use std::sync::Arc;
-use tracing::{Level, error, info};
+use tracing::{Level, debug, error, info, warn};
 use tracing_subscriber;
 
 #[derive(Parser, Debug)]
@@ -208,6 +207,13 @@ async fn main() {
 
     if cli.dry_run {
         info!("Running in dry-run mode (actions will not be executed)");
+    }
+
+    // Ensure plugins directory exists
+    if let Err(e) = std::fs::create_dir_all("plugins/actions") {
+        warn!("Failed to create plugins/actions directory: {}", e);
+    } else {
+        debug!("Plugins directory ready");
     }
 
     // Create and initialize engine

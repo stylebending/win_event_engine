@@ -14,7 +14,6 @@ use futures::{sink::SinkExt, stream::StreamExt};
 use serde::{Deserialize, Serialize};
 use tokio::net::TcpListener;
 use tokio::time::{interval, Duration};
-use tokio_stream::wrappers::BroadcastStream;
 use tracing::{error, info};
 
 use crate::{MetricUpdate, MetricsCollector, MetricsSnapshot};

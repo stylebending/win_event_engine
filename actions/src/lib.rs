@@ -1,8 +1,12 @@
+pub mod script_action;
+
 use engine_core::event::Event;
 use std::collections::HashMap;
 use std::path::PathBuf;
 use std::process::Stdio;
 use tracing::{error, info};
+
+pub use script_action::{ScriptAction, ScriptErrorBehavior};
 
 pub trait Action: Send + Sync {
     fn execute(&self, event: &Event) -> Result<ActionResult, ActionError>;
@@ -46,6 +50,12 @@ impl std::fmt::Display for ActionError {
 }
 
 impl std::error::Error for ActionError {}
+
+impl From<mlua::Error> for ActionError {
+    fn from(err: mlua::Error) -> Self {
+        ActionError::Execution(format!("Lua error: {}", err))
+    }
+}
 
 #[derive(Debug, Clone)]
 pub struct ExecuteAction {

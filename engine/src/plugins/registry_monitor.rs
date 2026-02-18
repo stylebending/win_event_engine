@@ -24,17 +24,18 @@ const KERNEL_REGISTRY_PROVIDER: GUID = GUID::from_u128(0xae5373a1_6483_4880_93b1
 const EVENT_REG_CREATE_KEY: u16 = 1;
 const EVENT_REG_OPEN_KEY: u16 = 2;
 const EVENT_REG_DELETE_KEY: u16 = 3;
-const EVENT_REG_QUERY_KEY: u16 = 4;
+const _EVENT_REG_QUERY_KEY: u16 = 4;
 const EVENT_REG_SET_VALUE: u16 = 5;
 const EVENT_REG_DELETE_VALUE: u16 = 6;
-const EVENT_REG_QUERY_VALUE: u16 = 7;
-const EVENT_REG_ENUMERATE_KEY: u16 = 8;
-const EVENT_REG_ENUMERATE_VALUE: u16 = 9;
-const EVENT_REG_QUERY_MULTIPLE_VALUE: u16 = 10;
-const EVENT_REG_SET_INFORMATION: u16 = 11;
-const EVENT_REG_FLUSH: u16 = 12;
+const _EVENT_REG_QUERY_VALUE: u16 = 7;
+const _EVENT_REG_ENUMERATE_KEY: u16 = 8;
+const _EVENT_REG_ENUMERATE_VALUE: u16 = 9;
+const _EVENT_REG_QUERY_MULTIPLE_VALUE: u16 = 10;
+const _EVENT_REG_SET_INFORMATION: u16 = 11;
+const _EVENT_REG_FLUSH: u16 = 12;
 
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 enum EtwEvent {
     RegistryKeyCreated {
         process_id: u32,
@@ -96,6 +97,7 @@ pub enum RegistryRoot {
 }
 
 impl RegistryRoot {
+    #[allow(dead_code)]
     fn to_string(&self) -> String {
         match self {
             RegistryRoot::HKEY_LOCAL_MACHINE => "HKLM".to_string(),
@@ -123,6 +125,7 @@ thread_local! {
 struct EtwCallbackContext {
     sender: Sender<EtwEvent>,
     is_running: Arc<AtomicBool>,
+    #[allow(dead_code)]
     key_filters: HashSet<String>, // Keys to filter by
 }
 
@@ -177,6 +180,7 @@ impl RegistryMonitorPlugin {
         filters
     }
 
+    #[allow(dead_code)]
     fn should_emit_event(&self, key_path: &str) -> bool {
         if self.keys.is_empty() {
             return true; // No filters, emit all
@@ -785,7 +789,7 @@ impl EventSourcePlugin for RegistryMonitorPlugin {
                                 
                                 (should, ev)
                             }
-                            EtwEvent::RegistryKeyOpened { process_id, key_path, desired_access, .. } => {
+                            EtwEvent::RegistryKeyOpened { process_id: _, key_path: _, desired_access: _, .. } => {
                                 // Don't emit events for open operations to reduce noise
                                 (false, Event::new(
                                     EventKind::TimerTick, // Dummy event, will be filtered out

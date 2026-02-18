@@ -6,3 +6,11 @@ edition.workspace = true
 [dependencies]
 engine_core = { path = "../engine_core" }
 tracing = "0.1"
+mlua = { version = "0.9", features = ["lua54", "vendored", "send", "serialize"] }
+serde_json = "1"
+reqwest = { version = "0.11", features = ["blocking"] }
+dirs = "5"
+chrono = "0.4"
+
+[dev-dependencies]
+tempfile = "3"
