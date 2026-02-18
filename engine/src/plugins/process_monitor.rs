@@ -118,6 +118,7 @@ thread_local! {
 struct EtwCallbackContext {
     sender: Sender<EtwEvent>,
     is_running: Arc<AtomicBool>,
+    #[allow(dead_code)]
     pid_filter: Option<String>,
 }
 

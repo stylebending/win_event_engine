@@ -500,6 +500,45 @@ public class MediaKeys {
                     };
                     Box::new(PowerShellAction::new(script))
                 }
+                ActionConfig::Script {
+                    path,
+                    function,
+                    timeout_ms,
+                    on_error,
+                } => {
+                    use actions::{ScriptAction, ScriptErrorBehavior};
+                    
+                    // Resolve path relative to plugins/actions/ if not absolute
+                    let script_path = if path.is_absolute() {
+                        path.clone()
+                    } else {
+                        PathBuf::from("plugins/actions").join(path)
+                    };
+                    
+                    match ScriptAction::new(script_path, function.clone()) {
+                        Ok(mut script_action) => {
+                            // Set timeout if specified
+                            if let Some(timeout) = timeout_ms {
+                                script_action = script_action.with_timeout(*timeout);
+                            }
+                            
+                            // Set error behavior
+                            if let Ok(behavior) = on_error.parse::<ScriptErrorBehavior>() {
+                                script_action = script_action.with_error_behavior(behavior);
+                            }
+                            
+                            Box::new(script_action)
+                        }
+                        Err(e) => {
+                            error!("Failed to create script action: {}", e);
+                            // Fallback to log action showing the error
+                            Box::new(LogAction::new(format!(
+                                "Script action failed to load: {}",
+                                e
+                            )))
+                        }
+                    }
+                }
             };
 
             self.action_executor.register(action_name, action);

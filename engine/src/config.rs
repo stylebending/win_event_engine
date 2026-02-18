@@ -186,6 +186,23 @@ pub enum ActionConfig {
     Media {
         command: String,
     },
+    Script {
+        path: PathBuf,
+        #[serde(default = "default_script_function")]
+        function: String,
+        #[serde(default)]
+        timeout_ms: Option<u64>,
+        #[serde(default = "default_script_on_error")]
+        on_error: String,
+    },
+}
+
+fn default_script_function() -> String {
+    "on_event".to_string()
+}
+
+fn default_script_on_error() -> String {
+    "fail".to_string()
 }
 
 fn default_log_level() -> String {
