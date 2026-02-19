@@ -6,6 +6,8 @@ Welcome to the WinEventEngine documentation! This wiki contains everything you n
 
 A universal event automation system for Windows that monitors system events (file changes, window activity, process creation, registry modifications) and executes automated actions based on configurable rules.
 
+Automate everything: backup files while you work, get Discord/Slack/Telegram notifications for important events, auto-commit code changes, or write easy-to-learn Lua scripts to customize your workflow - like auto-organizing screenshots or tracking daily habits. Simple configuration, powerful results.
+
 ## Key Features
 
 - **Event Monitoring**: File system, windows, processes, and registry
@@ -68,7 +70,13 @@ engine.exe -c config.toml
 # The engine is now running!
 ```
 
-### 4. Test It
+### 4. View the Dashboard
+
+Open your browser and go to: **http://127.0.0.1:9090**
+
+The dashboard is now ready and waiting for events. You'll see the connection status (green dot = connected).
+
+### 5. Test It
 
 In another terminal, create a test file:
 
@@ -76,14 +84,10 @@ In another terminal, create a test file:
 echo "Hello World" > test_folder\test.txt
 ```
 
-You should see in the engine output:
-```
-[LUA] New text file created!
-```
-
-### 5. View the Dashboard
-
-Open your browser and go to: **http://127.0.0.1:9090**
+Watch as:
+1. The engine logs: `[LUA] New text file created!`
+2. The dashboard shows the event in real-time!
+3. The event counter increases
 
 You'll see real-time events as they happen!
 

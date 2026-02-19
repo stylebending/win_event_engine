@@ -63,6 +63,7 @@ cargo fmt
 - `bus/` - Event bus/channel implementation
 - `rules/` - Rule matching logic
 - `actions/` - Action execution
+- `metrics/` - Metrics collection and HTTP endpoint
 - `core/` - Additional core utilities
 
 ## Code Style Guidelines

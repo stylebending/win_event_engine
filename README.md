@@ -6,6 +6,8 @@
 
 A universal event automation system for Windows built in Rust. Monitor file system events, window activity, process creation/termination, and registry changes - then execute automated actions based on configurable rules.
 
+Automate everything: backup files while you work, get Discord/Slack/Telegram notifications for important events, auto-commit code changes, or write easy-to-learn Lua scripts to customize your workflow - like auto-organizing screenshots or tracking daily habits. Simple configuration, powerful results.
+
 ## Features
 
 - **File System Watcher** - Monitor file creation, modification, deletion with pattern matching
@@ -68,7 +70,13 @@ engine.exe -c config.toml
 # You'll see output showing it's watching the test folder
 ```
 
-### Step 4: Test It
+### Step 4: View the Dashboard
+
+Open your browser and go to: **http://127.0.0.1:9090**
+
+The dashboard is now ready and waiting for events. You'll see the connection status (green dot = connected).
+
+### Step 5: Test It
 
 In another terminal, create a test file:
 
@@ -76,16 +84,10 @@ In another terminal, create a test file:
 echo "Hello World" > test_folder\test.txt
 ```
 
-You should see in the engine output:
-```
-[LUA] New text file created!
-```
-
-### Step 5: View the Dashboard
-
-Open your browser and go to: **http://127.0.0.1:9090**
-
-You'll see real-time events as they happen!
+Watch as:
+1. The engine logs: `[LUA] New text file created!`
+2. The dashboard shows the event in real-time!
+3. The event counter increases
 
 ## Next Steps
 
