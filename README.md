@@ -99,6 +99,9 @@ Watch as:
 ## Common Commands
 
 ```bash
+# View help
+engine.exe --help
+
 # Run with a config file
 engine.exe -c config.toml
 
@@ -111,11 +114,17 @@ engine.exe -c config.toml --log-level debug
 # Dry run (see what would happen without executing)
 engine.exe -c config.toml --dry-run
 
-# Install as Windows Service (requires admin)
+# Install as Windows Service (requires admin terminal)
 engine.exe --install
 
-# View help
-engine.exe --help
+# Start the Service (requires admin terminal)
+sc start WinEventEngine
+
+# Stop the Service (requires admin terminal)
+sc stop WinEventEngine
+
+# Uninstall as Windows Service (requires admin terminal)
+engine.exe --uninstall
 ```
 
 ## For Developers
