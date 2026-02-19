@@ -18,7 +18,7 @@ Automate everything: play/pause media when focusing specific windows, backup fil
 
 ## First Time Setup (5 minutes)
 
-New to WinEventEngine? Follow these steps to get up and running:
+New to WinEventEngine? This minimal example verifies everything works. You'll create a file watcher that logs when text files are created.
 
 ### 1. Download
 
@@ -30,7 +30,7 @@ Download `engine.exe` from [GitHub Releases](https://github.com/stylebending/win
 
 ### 2. Create Your First Config
 
-Create a file named `config.toml` in the same folder:
+Create a file named `config.toml` in the same folder as `engine.exe`. This config watches the `test_folder` subdirectory for new `.txt` files and logs when they're created:
 
 ```toml
 [engine]
@@ -61,7 +61,7 @@ enabled = true
 Open a terminal in the folder with `engine.exe`:
 
 ```bash
-# Create a test folder
+# Create a test folder (in the same folder as engine.exe)
 mkdir test_folder
 
 # Start the engine
@@ -93,7 +93,14 @@ You'll see real-time events as they happen!
 
 ## Next Steps
 
-Once you've completed the first time setup, explore these resources:
+### Try a Real Use Case
+
+Once you've verified the engine works, try **media automation**:
+
+1. Copy `config.media_automation.toml.example` to `config.toml`
+2. Edit the `title_contains` value to match your preferred window (e.g., "nvim", "VS Code", "Firefox")
+3. Run the engine and switch between windows
+4. Your media will automatically pause when you leave that window, and resume when you return
 
 ### Getting Started
 - **[Configuration Reference](Configuration-Reference)** - Complete configuration options and examples
@@ -109,6 +116,40 @@ Once you've completed the first time setup, explore these resources:
 ### Development
 - **[Architecture](Architecture)** - Technical deep-dive into the system
 - **[Contributing](https://github.com/stylebending/win_event_engine/blob/main/CONTRIBUTING.md)** - How to contribute to the project
+
+## Running as a Windows Service
+
+Run the engine in the background without keeping a terminal open. The service starts automatically on Windows startup.
+
+### Install the Service
+
+Open an **Administrator terminal in the folder containing `engine.exe`**:
+
+```bash
+# Install the service
+engine.exe --install
+
+# Start the service
+sc start WinEventEngine
+```
+
+### Manage the Service
+
+```bash
+# Check status
+sc query WinEventEngine
+
+# Stop the service
+sc stop WinEventEngine
+
+# Uninstall (stops and removes)
+engine.exe --uninstall
+```
+
+**Notes:**
+- Service starts automatically on Windows boot
+- Config file path must be absolute or relative to engine.exe location
+- Requires Administrator privileges for install/uninstall
 
 ## Quick Reference
 
