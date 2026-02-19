@@ -6,7 +6,7 @@
 
 A universal event automation system for Windows built in Rust. Monitor file system events, window activity, process creation/termination, and registry changes - then execute automated actions based on configurable rules.
 
-Automate everything: backup files while you work, get Discord/Slack/Telegram notifications for important events, auto-commit code changes, or write easy-to-learn Lua scripts to customize your workflow - like auto-organizing screenshots or tracking daily habits. Simple configuration, powerful results.
+Automate everything: play/pause media when focusing specific windows, backup files while you work, get Discord/Slack/Telegram notifications for important events, auto-commit code changes, or write easy-to-learn Lua scripts to customize your workflow - like auto-organizing screenshots or tracking daily habits. Simple configuration, powerful results.
 
 ## Features
 
