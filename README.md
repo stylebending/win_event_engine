@@ -21,6 +21,8 @@ Automate everything: play/pause media when focusing specific windows, backup fil
 
 ## First Time Setup (5 minutes)
 
+This minimal example verifies everything works. You'll create a file watcher that logs when text files are created.
+
 ### Step 1: Download
 
 Download `engine.exe` from [GitHub Releases](https://github.com/stylebending/win_event_engine/releases) and save it to a folder (e.g., `C:\Tools\win_event_engine\`).
@@ -31,7 +33,7 @@ Download `engine.exe` from [GitHub Releases](https://github.com/stylebending/win
 
 ### Step 2: Create Your First Config
 
-Create a file named `config.toml` in the same folder:
+Create a file named `config.toml` in the same folder as `engine.exe`. This config watches the `test_folder` subdirectory for new `.txt` files and logs when they're created:
 
 ```toml
 [engine]
@@ -60,7 +62,7 @@ enabled = true
 Open a terminal in the folder with `engine.exe`:
 
 ```bash
-# Create a test folder
+# Create a test folder (in the same folder as engine.exe)
 mkdir test_folder
 
 # Start the engine
@@ -91,10 +93,55 @@ Watch as:
 
 ## Next Steps
 
-- **Learn More** - See the [full documentation](https://github.com/stylebending/win_event_engine/wiki)
-- **Configuration** - Check out the [Configuration Reference](https://github.com/stylebending/win_event_engine/wiki/Configuration-Reference)
-- **Write Scripts** - Learn [Lua scripting](https://github.com/stylebending/win_event_engine/wiki/Lua-Scripting-API)
-- **More Examples** - See [config.toml.example](config.toml.example)
+### Try a Real Use Case
+
+Once you've verified the engine works, try **media automation**:
+
+1. Copy `config.media_automation.toml.example` to `config.toml`
+2. Edit the `title_contains` value to match your preferred window (e.g., "nvim", "VS Code", "Firefox")
+3. Run the engine and switch between windows
+4. Your media will automatically pause when you leave that window, and resume when you return
+
+### Learn More
+
+- **Full Documentation** - [GitHub Wiki](https://github.com/stylebending/win_event_engine/wiki)
+- **All Config Options** - [Configuration Reference](https://github.com/stylebending/win_event_engine/wiki/Configuration-Reference)
+- **Write Custom Scripts** - [Lua Scripting API](https://github.com/stylebending/win_event_engine/wiki/Lua-Scripting-API)
+- **More Examples** - See `config.toml.example`
+
+## Running as a Windows Service
+
+Run the engine in the background without keeping a terminal open. The service starts automatically on Windows startup.
+
+### Install the Service
+
+Open an **Administrator terminal in the folder containing `engine.exe`**:
+
+```bash
+# Install the service
+engine.exe --install
+
+# Start the service
+sc start WinEventEngine
+```
+
+### Manage the Service
+
+```bash
+# Check status
+sc query WinEventEngine
+
+# Stop the service
+sc stop WinEventEngine
+
+# Uninstall (stops and removes)
+engine.exe --uninstall
+```
+
+**Notes:**
+- Service starts automatically on Windows boot
+- Config file path must be absolute or relative to engine.exe location
+- Requires Administrator privileges for install/uninstall
 
 ## Common Commands
 
@@ -126,19 +173,6 @@ sc stop WinEventEngine
 # Uninstall as Windows Service (requires admin terminal)
 engine.exe --uninstall
 ```
-
-## For Developers
-
-**Build from Source** (requires [Rust](https://rustup.rs/)):
-
-```bash
-git clone https://github.com/stylebending/win_event_engine.git
-cd win_event_engine
-cargo build --release -p engine
-# Executable: target/release/engine.exe
-```
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
 
 ## Web Dashboard
 
@@ -212,6 +246,19 @@ See [Lua Scripting API](https://github.com/stylebending/win_event_engine/wiki/Lu
 - [x] Metrics and monitoring
 - [x] Web dashboard (real-time)
 - [x] Plugin system for custom actions (Lua scripting)
+
+## For Developers
+
+**Build from Source** (requires [Rust](https://rustup.rs/)):
+
+```bash
+git clone https://github.com/stylebending/win_event_engine.git
+cd win_event_engine
+cargo build --release -p engine
+# Executable: target/release/engine.exe
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
 
 ## Contributing
 
