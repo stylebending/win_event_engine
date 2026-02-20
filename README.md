@@ -232,21 +232,6 @@ See [Lua Scripting API](https://github.com/stylebending/win_event_engine/wiki/Lu
 - **[Troubleshooting](https://github.com/stylebending/win_event_engine/wiki/Troubleshooting)** - Common issues and solutions
 - **[Architecture](https://github.com/stylebending/win_event_engine/wiki/Architecture)** - Technical deep-dive
 
-## Project Status
-
-- [x] Core event engine
-- [x] File system watcher
-- [x] Window event monitor
-- [x] Process monitor (ETW)
-- [x] Registry monitor (ETW)
-- [x] Rule engine with pattern matching
-- [x] CLI interface
-- [x] Configuration hot-reloading
-- [x] Windows service wrapper
-- [x] Metrics and monitoring
-- [x] Web dashboard (real-time)
-- [x] Plugin system for custom actions (Lua scripting)
-
 ## For Developers
 
 **Build from Source** (requires [Rust](https://rustup.rs/)):

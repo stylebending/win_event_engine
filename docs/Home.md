@@ -202,10 +202,6 @@ See **[Configuration Reference](Configuration-Reference)** for more examples.
 - [Issues](https://github.com/stylebending/win_event_engine/issues)
 - [License: MIT](https://github.com/stylebending/win_event_engine/blob/main/LICENSE)
 
-## Version
-
-Current version: **v0.2.0**
-
 ---
 
 *Built with ❤️ in Rust for Windows automation*
