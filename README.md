@@ -1,4 +1,4 @@
-<h1 align="center">Windows Event Automation Engine</h1>
+<h3 align="center">Windows Event Automation Engine</h3>
 
 <p align="center">
 
@@ -28,7 +28,7 @@
 
 </p>
 
-<h2 align="center">Quick Navigation</h2>
+<h3 align="center">Quick Navigation</h3>
 
 <p align="center">
 
@@ -70,9 +70,7 @@
 
 </p>
 
-<h2 align="center">📦 What is Win Event Engine?</h2>
-
-<p align="center">
+## 📦 What is Win Event Engine?
 
 Win Event Engine is an event-driven automation framework for Windows that allows you to:
 
@@ -81,8 +79,6 @@ Win Event Engine is an event-driven automation framework for Windows that allows
 - Monitor activity through a web dashboard
 - Run as a background Windows service
 - Extend behavior with custom event handlers
-
-</p>
 
 Automate everything: play/pause media when focusing specific windows, backup files while you work, get Discord/Slack/Telegram notifications for important events, auto-commit code changes, or write easy-to-learn Lua scripts to customize your workflow - like auto-organizing screenshots or tracking daily habits. Simple configuration, powerful results.
 
