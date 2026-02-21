@@ -1,3 +1,5 @@
+<p align="center">
+
 # Windows Event Automation Engine
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -7,7 +9,6 @@
 
 ## 🚀 Quick Navigation
 
-<p align="center">
 
 <a href="https://github.com/stylebending/win_event_engine/wiki">
   <img src="https://img.shields.io/badge/📖-Documentation-blue?style=for-the-badge">
@@ -53,7 +54,7 @@
 
 Win Event Engine is an event-driven automation framework for Windows that allows you to:
 
-- React to system events in real time (file system events, window activity, process creation/termination, and registry changes)
+- React to system events in real time
 - Automate workflows using Lua scripts
 - Monitor activity through a web dashboard
 - Run as a background Windows service
