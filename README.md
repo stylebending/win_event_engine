@@ -1,21 +1,33 @@
-<p align="center">
-
 # Windows Event Automation Engine
 
+<p align="center">
+
+<a href="https://github.com/stylebending/win_event_engine/blob/main/LICENSE">
+  <img src="https://img.shields.io/badge/📄-MIT%20License-blue?style=for-the-badge">
+</a>
+
+<a href="https://www.rust-lang.org">
+  <img src="https://img.shields.io/badge/Rust%202024%20Edition-orange?style=for-the-badge&logo=rust">
+</a>
+
+<a href="https://github.com/stylebending/win_event_engine/releases">
+  <img src="https://img.shields.io/github/v/release/stylebending/win_event_engine?style=for-the-badge&color=green&logo=git&logoColor=white&label=Release">
+</a>
+
+<a href="https://github.com/stylebending/win_event_engine/releases">
+  <img src="https://img.shields.io/github/downloads/stylebending/win_event_engine/total?color=green&logo=github&label=Total%20Downloads&style=for-the-badge">
+</a>
+
 </p>
 
 <p align="center">
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Rust](https://img.shields.io/badge/Rust-2024%20Edition-orange.svg?logo=rust)](https://www.rust-lang.org/)
-[![Version](https://img.shields.io/github/v/release/stylebending/win_event_engine?color=green&logo=git&logoColor=white&label=Release)](https://github.com/stylebending/win_event_engine/releases)
-[![Downloads](https://img.shields.io/github/downloads/stylebending/win_event_engine/total?color=green&logo=github&label=Total%20Downloads)](https://github.com/stylebending/win_event_engine/releases)
+<h1>🚀 Quick Navigation</h1>
 
 </p>
 
-## 🚀 Quick Navigation
-
 <p align="center">
+
 
 <a href="https://github.com/stylebending/win_event_engine/wiki">
   <img src="https://img.shields.io/badge/📖-Documentation-blue?style=for-the-badge">
@@ -51,6 +63,18 @@
 
 <a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#lua-scripting">
   <img src="https://img.shields.io/badge/🔧-Lua%20Scripting-blue?style=for-the-badge">
+</a>
+
+</p>
+
+<p align="center">
+
+<a href="https://github.com/stylebending/win_event_engine?tab=MIT-1-ov-file">
+  <img src="https://img.shields.io/badge/📄-MIT%20License-blue?style=for-the-badge">
+</a>
+
+<a href="https://github.com/stylebending/win_event_engine?tab=contributing-ov-file">
+  <img src="https://img.shields.io/badge/🪽-Contributing-blue?style=for-the-badge">
 </a>
 
 </p>
