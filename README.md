@@ -70,8 +70,6 @@
 
 </p>
 
----
-
 ## 📦 What is Win Event Engine?
 
 Win Event Engine is an event-driven automation framework for Windows that allows you to:
