@@ -2,25 +2,62 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/Rust-2024%20Edition-orange.svg?logo=rust)](https://www.rust-lang.org/)
-[![Version](https://img.shields.io/github/v/release/stylebending/win_event_engine?color=green&logo=git&logoColor=white)](https://github.com/stylebending/win_event_engine/releases)
+[![Version](https://img.shields.io/github/v/release/stylebending/win_event_engine?color=green&logo=git&logoColor=white&label=Release)](https://github.com/stylebending/win_event_engine/releases)
 [![Downloads](https://img.shields.io/github/downloads/stylebending/win_event_engine/total?color=green&logo=github&label=Total%20Downloads)](https://github.com/stylebending/win_event_engine/releases)
 
-## 📚 Getting Started
-👉 [Documentation](...)
-👉 [Features](...)
-👉 [First Time Setup](...)
-👉 [Next Steps](...)
+## 🚀 Quick Navigation
 
-## ⚙️ Usage
-👉 [Running as a Windows Service](...)
-👉 [Common Commands](...)
-👉 [Web Dashboard](...)
-👉 [Lua Scripting](...)
+<p align="center">
 
-## 📄 License
-👉 [MIT License](...)
+<a href="https://github.com/stylebending/win_event_engine/wiki">
+  <img src="https://img.shields.io/badge/📖-Documentation-blue?style=for-the-badge">
+</a>
 
-A universal event automation system for Windows built in Rust. Monitor file system events, window activity, process creation/termination, and registry changes - then execute automated actions based on configurable rules.
+<a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#features">
+  <img src="https://img.shields.io/badge/✨-Features-blue?style=for-the-badge">
+</a>
+
+<a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#first-time-setup-5-minutes">
+  <img src="https://img.shields.io/badge/🚀-First%20Time%20Setup-blue?style=for-the-badge">
+</a>
+
+<a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#next-steps">
+  <img src="https://img.shields.io/badge/🧭-Next%20Steps-blue?style=for-the-badge">
+</a>
+
+</p>
+
+<p align="center">
+
+<a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#running-as-a-windows-service">
+  <img src="https://img.shields.io/badge/🪟-Windows%20Service-green?style=for-the-badge">
+</a>
+
+<a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#common-commands">
+  <img src="https://img.shields.io/badge/💻-Common%20Commands-green?style=for-the-badge">
+</a>
+
+<a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#web-dashboard">
+  <img src="https://img.shields.io/badge/📊-Web%20Dashboard-green?style=for-the-badge">
+</a>
+
+<a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#lua-scripting">
+  <img src="https://img.shields.io/badge/🔧-Lua%20Scripting-green?style=for-the-badge">
+</a>
+
+</p>
+
+---
+
+## 📦 What is Win Event Engine?
+
+Win Event Engine is an event-driven automation framework for Windows that allows you to:
+
+- React to system events in real time (file system events, window activity, process creation/termination, and registry changes)
+- Automate workflows using Lua scripts
+- Monitor activity through a web dashboard
+- Run as a background Windows service
+- Extend behavior with custom event handlers
 
 Automate everything: play/pause media when focusing specific windows, backup files while you work, get Discord/Slack/Telegram notifications for important events, auto-commit code changes, or write easy-to-learn Lua scripts to customize your workflow - like auto-organizing screenshots or tracking daily habits. Simple configuration, powerful results.
 
