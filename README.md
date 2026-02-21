@@ -2,13 +2,20 @@
 
 # Windows Event Automation Engine
 
+</p>
+
+<p align="center">
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Rust](https://img.shields.io/badge/Rust-2024%20Edition-orange.svg?logo=rust)](https://www.rust-lang.org/)
 [![Version](https://img.shields.io/github/v/release/stylebending/win_event_engine?color=green&logo=git&logoColor=white&label=Release)](https://github.com/stylebending/win_event_engine/releases)
 [![Downloads](https://img.shields.io/github/downloads/stylebending/win_event_engine/total?color=green&logo=github&label=Total%20Downloads)](https://github.com/stylebending/win_event_engine/releases)
 
+</p>
+
 ## 🚀 Quick Navigation
 
+<p align="center">
 
 <a href="https://github.com/stylebending/win_event_engine/wiki">
   <img src="https://img.shields.io/badge/📖-Documentation-blue?style=for-the-badge">
@@ -31,19 +38,19 @@
 <p align="center">
 
 <a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#running-as-a-windows-service">
-  <img src="https://img.shields.io/badge/🪟-Windows%20Service-green?style=for-the-badge">
+  <img src="https://img.shields.io/badge/🪟-Windows%20Service-blue?style=for-the-badge">
 </a>
 
 <a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#common-commands">
-  <img src="https://img.shields.io/badge/💻-Common%20Commands-green?style=for-the-badge">
+  <img src="https://img.shields.io/badge/💻-Common%20Commands-blue?style=for-the-badge">
 </a>
 
 <a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#web-dashboard">
-  <img src="https://img.shields.io/badge/📊-Web%20Dashboard-green?style=for-the-badge">
+  <img src="https://img.shields.io/badge/📊-Web%20Dashboard-blue?style=for-the-badge">
 </a>
 
 <a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#lua-scripting">
-  <img src="https://img.shields.io/badge/🔧-Lua%20Scripting-green?style=for-the-badge">
+  <img src="https://img.shields.io/badge/🔧-Lua%20Scripting-blue?style=for-the-badge">
 </a>
 
 </p>
