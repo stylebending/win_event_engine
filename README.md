@@ -3,7 +3,7 @@
 <p align="center">
 
 <a href="https://www.rust-lang.org">
-  <img src="https://img.shields.io/badge/Rust%202024%20Edition-orange?style=for-the-badge&logo=rust">
+  <img src="https://img.shields.io/badge/Rust-orange?style=for-the-badge&logo=rust">
 </a>
 
 <a href="https://github.com/stylebending/win_event_engine/releases">
@@ -28,7 +28,7 @@
 
 </p>
 
-<h2 align="center">🚀 Quick Navigation</h2>
+<h2 align="center">Quick Navigation</h2>
 
 <p align="center">
 
@@ -70,7 +70,9 @@
 
 </p>
 
-## 📦 What is Win Event Engine?
+<h2 align="center">📦 What is Win Event Engine?</h2>
+
+<p align="center">
 
 Win Event Engine is an event-driven automation framework for Windows that allows you to:
 
@@ -79,6 +81,8 @@ Win Event Engine is an event-driven automation framework for Windows that allows
 - Monitor activity through a web dashboard
 - Run as a background Windows service
 - Extend behavior with custom event handlers
+
+</p>
 
 Automate everything: play/pause media when focusing specific windows, backup files while you work, get Discord/Slack/Telegram notifications for important events, auto-commit code changes, or write easy-to-learn Lua scripts to customize your workflow - like auto-organizing screenshots or tracking daily habits. Simple configuration, powerful results.
 
@@ -97,13 +101,13 @@ Automate everything: play/pause media when focusing specific windows, backup fil
 
 This minimal example verifies everything works. You'll create a file watcher that logs when text files are created.
 
-### Step 1: Download
-
-Download `engine.exe` from [GitHub Releases](https://github.com/stylebending/win_event_engine/releases) and save it to a folder (e.g., `C:\Tools\win_event_engine\`).
-
 **Requirements:**
 - Windows 10/11
 - [Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe) (usually pre-installed on most systems)
+
+### Step 1: Download
+
+Download `engine.exe` from [GitHub Releases](https://github.com/stylebending/win_event_engine/releases) and save it to a folder (e.g., `C:\Tools\win_event_engine\`).
 
 ### Step 2: Create Your First Config
 
@@ -332,7 +336,3 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-**Built with ❤️ in Rust for Windows automation**

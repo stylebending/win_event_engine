@@ -20,13 +20,13 @@ Automate everything: play/pause media when focusing specific windows, backup fil
 
 New to WinEventEngine? This minimal example verifies everything works. You'll create a file watcher that logs when text files are created.
 
-### 1. Download
-
-Download `engine.exe` from [GitHub Releases](https://github.com/stylebending/win_event_engine/releases) and save it to a folder (e.g., `C:\Tools\win_event_engine\`).
-
 **Requirements:**
 - Windows 10/11
 - [Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe) (usually pre-installed on most systems)
+
+### 1. Download
+
+Download `engine.exe` from [GitHub Releases](https://github.com/stylebending/win_event_engine/releases) and save it to a folder (e.g., `C:\Tools\win_event_engine\`).
 
 ### 2. Create Your First Config
 
@@ -201,7 +201,3 @@ See **[Configuration Reference](Configuration-Reference)** for more examples.
 - [Releases](https://github.com/stylebending/win_event_engine/releases)
 - [Issues](https://github.com/stylebending/win_event_engine/issues)
 - [License: MIT](https://github.com/stylebending/win_event_engine/blob/main/LICENSE)
-
----
-
-*Built with ❤️ in Rust for Windows automation*
