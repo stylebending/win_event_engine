@@ -1,8 +1,8 @@
 # Windows Event Automation Engine
 
-[![Rust](https://img.shields.io/badge/Rust-2024%20Edition-orange.svg)](https://www.rust-lang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/stylebending/win_event_engine/releases)
+[![Rust](https://img.shields.io/badge/Rust-2024%20Edition-orange.svg?logo=rust)](https://www.rust-lang.org/)
+[![Version](https://img.shields.io/github/v/release/stylebending/win_event_engine?color=green&logo=git&logoColor=white)](https://github.com/stylebending/win_event_engine/releases)
 [![Downloads](https://img.shields.io/github/downloads/stylebending/win_event_engine/total?color=green&logo=github&label=Total%20Downloads)](https://github.com/stylebending/win_event_engine/releases)
 
 A universal event automation system for Windows built in Rust. Monitor file system events, window activity, process creation/termination, and registry changes - then execute automated actions based on configurable rules.
