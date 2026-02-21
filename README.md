@@ -1,4 +1,4 @@
-<h3 align="center">Windows Event Automation Engine</h3>
+<h1 align="center">Windows Event Automation Engine</h1>
 
 <p align="center">
 
@@ -28,10 +28,9 @@
 
 </p>
 
-<h3 align="center">🚀 Quick Navigation</h3>
+<h2 align="center">🚀 Quick Navigation</h2>
 
 <p align="center">
-
 
 <a href="https://github.com/stylebending/win_event_engine/wiki">
   <img src="https://img.shields.io/badge/📖-Documentation-blue?style=for-the-badge&labelColor=blue">
