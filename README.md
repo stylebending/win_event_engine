@@ -3,7 +3,7 @@
 <p align="center">
 
 <a href="https://www.rust-lang.org">
-  <img src="https://img.shields.io/badge/Rust-orange?style=for-the-badge&logo=rust">
+  <img src="https://img.shields.io/badge/Rust-darkorange?style=for-the-badge&logo=rust">
 </a>
 
 <a href="https://github.com/stylebending/win_event_engine/releases">
