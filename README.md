@@ -1,10 +1,10 @@
-# Windows Event Automation Engine
-
 <p align="center">
 
-<a href="https://github.com/stylebending/win_event_engine/blob/main/LICENSE">
-  <img src="https://img.shields.io/badge/📄-MIT%20License-blue?style=for-the-badge">
-</a>
+<h3>Windows Event Automation Engine</h3>
+
+</p>
+
+<p align="center">
 
 <a href="https://www.rust-lang.org">
   <img src="https://img.shields.io/badge/Rust%202024%20Edition-orange?style=for-the-badge&logo=rust">
@@ -22,7 +22,19 @@
 
 <p align="center">
 
-<h1>🚀 Quick Navigation</h1>
+<a href="https://github.com/stylebending/win_event_engine?tab=MIT-1-ov-file">
+  <img src="https://img.shields.io/badge/📄-MIT%20License-blue?style=for-the-badge">
+</a>
+
+<a href="https://github.com/stylebending/win_event_engine?tab=contributing-ov-file">
+  <img src="https://img.shields.io/badge/🪽-Contributing-blue?style=for-the-badge">
+</a>
+
+</p>
+
+<p align="center">
+
+<h3>🚀 Quick Navigation</h3>
 
 </p>
 
@@ -63,18 +75,6 @@
 
 <a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#lua-scripting">
   <img src="https://img.shields.io/badge/🔧-Lua%20Scripting-blue?style=for-the-badge">
-</a>
-
-</p>
-
-<p align="center">
-
-<a href="https://github.com/stylebending/win_event_engine?tab=MIT-1-ov-file">
-  <img src="https://img.shields.io/badge/📄-MIT%20License-blue?style=for-the-badge">
-</a>
-
-<a href="https://github.com/stylebending/win_event_engine?tab=contributing-ov-file">
-  <img src="https://img.shields.io/badge/🪽-Contributing-blue?style=for-the-badge">
 </a>
 
 </p>
