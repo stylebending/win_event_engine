@@ -5,6 +5,15 @@
 [![Version](https://img.shields.io/github/v/release/stylebending/win_event_engine?color=green&logo=git&logoColor=white)](https://github.com/stylebending/win_event_engine/releases)
 [![Downloads](https://img.shields.io/github/downloads/stylebending/win_event_engine/total?color=green&logo=github&label=Total%20Downloads)](https://github.com/stylebending/win_event_engine/releases)
 
+• [Documentation](https://github.com/stylebending/win_event_engine/wikihttps://github.com/stylebending/win_event_engine?tab=readme-ov-file#lua-scripting)
+• [Features](https://github.com/stylebending/win_event_engine?tab=readme-ov-file#features)
+• [First Time Setup](https://github.com/stylebending/win_event_engine?tab=readme-ov-file#first-time-setup-5-minutes)
+• [Next Steps](https://github.com/stylebending/win_event_engine?tab=readme-ov-file#next-steps) • [Running as a Windows Service](https://github.com/stylebending/win_event_engine?tab=readme-ov-file#running-as-a-windows-service)
+• [Common Commands](https://github.com/stylebending/win_event_engine?tab=readme-ov-file#common-commands)
+• [Web Dashboard](https://github.com/stylebending/win_event_engine?tab=readme-ov-file#web-dashboard)
+• [Lua Scripting](https://github.com/stylebending/win_event_engine?tab=readme-ov-file#lua-scripting)
+• [MIT License](https://github.com/stylebending/win_event_engine/blob/main/LICENSE)
+
 A universal event automation system for Windows built in Rust. Monitor file system events, window activity, process creation/termination, and registry changes - then execute automated actions based on configurable rules.
 
 Automate everything: play/pause media when focusing specific windows, backup files while you work, get Discord/Slack/Telegram notifications for important events, auto-commit code changes, or write easy-to-learn Lua scripts to customize your workflow - like auto-organizing screenshots or tracking daily habits. Simple configuration, powerful results.
