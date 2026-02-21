@@ -18,11 +18,11 @@
 
 <p align="center">
 
-<a href="https://github.com/stylebending/win_event_engine?tab=MIT-1-ov-file">
+<a href="https://github.com/stylebending/win_event_engine?tab=MIT-1-ov-file#">
   <img src="https://img.shields.io/badge/📄-MIT%20License-blue?style=for-the-badge&labelColor=blue">
 </a>
 
-<a href="https://github.com/stylebending/win_event_engine?tab=contributing-ov-file">
+<a href="https://github.com/stylebending/win_event_engine?tab=contributing-ov-file#">
   <img src="https://img.shields.io/badge/🪽-Contributing-blue?style=for-the-badge&labelColor=blue">
 </a>
 
