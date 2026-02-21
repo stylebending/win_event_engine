@@ -212,7 +212,7 @@ echo "test" > C:/Monitored/test.txt
 
 ### Dashboard Won't Load
 
-See [Web Dashboard troubleshooting](Web-Dashboard.md#troubleshooting)
+See [Web Dashboard troubleshooting](Web-Dashboard#troubleshooting)
 
 ### Metrics Not Showing
 
@@ -293,6 +293,6 @@ When reporting issues, include:
 
 ## See Also
 
-- [Configuration Reference](Configuration-Reference.md) - Valid config options
-- [Lua Scripting API](Lua-Scripting-API.md) - Debugging scripts
-- [Web Dashboard](Web-Dashboard.md) - Dashboard-specific issues
+- [Configuration Reference](Configuration-Reference) - Valid config options
+- [Lua Scripting API](Lua-Scripting-API) - Debugging scripts
+- [Web Dashboard](Web-Dashboard) - Dashboard-specific issues

@@ -371,6 +371,6 @@ Scripts run in a sandboxed environment:
 
 ## See Also
 
-- [Configuration Reference](Configuration-Reference.md) - Full config options
-- [Event Types](Event-Types.md) - Available event types
-- [Troubleshooting](Troubleshooting.md) - Common script issues
+- [Configuration Reference](Configuration-Reference) - Full config options
+- [Event Types](Event-Types) - Available event types
+- [Troubleshooting](Troubleshooting) - Common script issues

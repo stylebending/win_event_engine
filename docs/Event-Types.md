@@ -297,5 +297,5 @@ trigger = { type = "window_focused", title_contains = "Visual Studio" }
 
 ## See Also
 
-- [Configuration Reference](Configuration-Reference.md) - How to configure event sources
-- [Lua Scripting API](Lua-Scripting-API.md) - Handling events in scripts
+- [Configuration Reference](Configuration-Reference) - How to configure event sources
+- [Lua Scripting API](Lua-Scripting-API) - Handling events in scripts

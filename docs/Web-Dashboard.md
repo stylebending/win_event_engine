@@ -280,6 +280,6 @@ Currently no authentication is required because it's localhost-only. If you need
 
 ## See Also
 
-- [Configuration Reference](Configuration-Reference.md) - Configuring metrics endpoint
-- [Architecture](../Architecture.md) - How the dashboard fits into the system
-- [Troubleshooting](Troubleshooting.md) - General troubleshooting guide
+- [Configuration Reference](Configuration-Reference) - Configuring metrics endpoint
+- [Architecture](Architecture) - How the dashboard fits into the system
+- [Troubleshooting](Troubleshooting) - General troubleshooting guide

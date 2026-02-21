@@ -258,6 +258,6 @@ Actions have access to these environment variables:
 
 ## See Also
 
-- [Event Types](Event-Types.md) - All available event types
-- [Lua Scripting API](Lua-Scripting-API.md) - Custom script documentation
-- [Troubleshooting](Troubleshooting.md) - Common configuration issues
+- [Event Types](Event-Types) - All available event types
+- [Lua Scripting API](Lua-Scripting-API) - Custom script documentation
+- [Troubleshooting](Troubleshooting) - Common configuration issues
