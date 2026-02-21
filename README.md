@@ -1,8 +1,4 @@
-<p align="center">
-
-<h3>Windows Event Automation Engine</h3>
-
-</p>
+<h3 align="center">Windows Event Automation Engine</h3>
 
 <p align="center">
 
@@ -11,11 +7,11 @@
 </a>
 
 <a href="https://github.com/stylebending/win_event_engine/releases">
-  <img src="https://img.shields.io/github/v/release/stylebending/win_event_engine?style=for-the-badge&color=green&logo=git&logoColor=white&label=Release">
+  <img src="https://img.shields.io/github/v/release/stylebending/win_event_engine?style=for-the-badge&color=green&logo=git&logoColor=white&label=Release&labelColor=green">
 </a>
 
 <a href="https://github.com/stylebending/win_event_engine/releases">
-  <img src="https://img.shields.io/github/downloads/stylebending/win_event_engine/total?color=green&logo=github&label=Total%20Downloads&style=for-the-badge">
+  <img src="https://img.shields.io/github/downloads/stylebending/win_event_engine/total?color=green&logo=github&label=Total%20Downloads&style=for-the-badge&labelColor=green">
 </a>
 
 </p>
@@ -23,38 +19,34 @@
 <p align="center">
 
 <a href="https://github.com/stylebending/win_event_engine?tab=MIT-1-ov-file">
-  <img src="https://img.shields.io/badge/📄-MIT%20License-blue?style=for-the-badge">
+  <img src="https://img.shields.io/badge/📄-MIT%20License-blue?style=for-the-badge&labelColor=blue">
 </a>
 
 <a href="https://github.com/stylebending/win_event_engine?tab=contributing-ov-file">
-  <img src="https://img.shields.io/badge/🪽-Contributing-blue?style=for-the-badge">
+  <img src="https://img.shields.io/badge/🪽-Contributing-blue?style=for-the-badge&labelColor=blue">
 </a>
 
 </p>
 
-<p align="center">
-
-<h3>🚀 Quick Navigation</h3>
-
-</p>
+<h3 align="center">🚀 Quick Navigation</h3>
 
 <p align="center">
 
 
 <a href="https://github.com/stylebending/win_event_engine/wiki">
-  <img src="https://img.shields.io/badge/📖-Documentation-blue?style=for-the-badge">
+  <img src="https://img.shields.io/badge/📖-Documentation-blue?style=for-the-badge&labelColor=blue">
 </a>
 
 <a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#features">
-  <img src="https://img.shields.io/badge/✨-Features-blue?style=for-the-badge">
+  <img src="https://img.shields.io/badge/✨-Features-blue?style=for-the-badge&labelColor=blue">
 </a>
 
 <a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#first-time-setup-5-minutes">
-  <img src="https://img.shields.io/badge/🚀-First%20Time%20Setup-blue?style=for-the-badge">
+  <img src="https://img.shields.io/badge/🚀-First%20Time%20Setup-blue?style=for-the-badge&labelColor=blue">
 </a>
 
 <a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#next-steps">
-  <img src="https://img.shields.io/badge/🧭-Next%20Steps-blue?style=for-the-badge">
+  <img src="https://img.shields.io/badge/🧭-Next%20Steps-blue?style=for-the-badge&labelColor=blue">
 </a>
 
 </p>
@@ -62,19 +54,19 @@
 <p align="center">
 
 <a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#running-as-a-windows-service">
-  <img src="https://img.shields.io/badge/🪟-Windows%20Service-blue?style=for-the-badge">
+  <img src="https://img.shields.io/badge/🪟-Windows%20Service-blue?style=for-the-badge&labelColor=blue">
 </a>
 
 <a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#common-commands">
-  <img src="https://img.shields.io/badge/💻-Common%20Commands-blue?style=for-the-badge">
+  <img src="https://img.shields.io/badge/💻-Common%20Commands-blue?style=for-the-badge&labelColor=blue">
 </a>
 
 <a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#web-dashboard">
-  <img src="https://img.shields.io/badge/📊-Web%20Dashboard-blue?style=for-the-badge">
+  <img src="https://img.shields.io/badge/📊-Web%20Dashboard-blue?style=for-the-badge&labelColor=blue">
 </a>
 
 <a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#lua-scripting">
-  <img src="https://img.shields.io/badge/🔧-Lua%20Scripting-blue?style=for-the-badge">
+  <img src="https://img.shields.io/badge/🔧-Lua%20Scripting-blue?style=for-the-badge&labelColor=blue">
 </a>
 
 </p>
