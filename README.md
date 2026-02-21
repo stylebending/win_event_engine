@@ -19,11 +19,11 @@
 <p align="center">
 
 <a href="https://github.com/stylebending/win_event_engine/license.md">
-  <img src="https://img.shields.io/badge/📄-MIT%20License-blue?style=for-the-badge&labelColor=blue">
+  <img src="https://img.shields.io/badge/📄-MIT%20License-darkblue?style=for-the-badge&labelColor=darkblue">
 </a>
 
 <a href="https://github.com/stylebending/win_event_engine/docs/contributing.md">
-  <img src="https://img.shields.io/badge/🪽-Contributing-blue?style=for-the-badge&labelColor=blue">
+  <img src="https://img.shields.io/badge/🪽-Contributing-darkblue?style=for-the-badge&labelColor=darkblue">
 </a>
 
 </p>
@@ -33,15 +33,15 @@
 <p align="center">
 
 <a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#features">
-  <img src="https://img.shields.io/badge/✨-Features-blue?style=for-the-badge&labelColor=blue">
+  <img src="https://img.shields.io/badge/✨-Features-darkblue?style=for-the-badge&labelColor=darkblue">
 </a>
 
 <a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#first-time-setup-5-minutes">
-  <img src="https://img.shields.io/badge/🚀-First%20Time%20Setup-blue?style=for-the-badge&labelColor=blue">
+  <img src="https://img.shields.io/badge/🚀-First%20Time%20Setup-darkblue?style=for-the-badge&labelColor=darkblue">
 </a>
 
 <a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#next-steps">
-  <img src="https://img.shields.io/badge/🧭-Next%20Steps-blue?style=for-the-badge&labelColor=blue">
+  <img src="https://img.shields.io/badge/🧭-Next%20Steps-darkblue?style=for-the-badge&labelColor=darkblue">
 </a>
 
 </p>
@@ -49,15 +49,15 @@
 <p align="center">
 
 <a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#running-as-a-windows-service">
-  <img src="https://img.shields.io/badge/🪟-Windows%20Service-blue?style=for-the-badge&labelColor=blue">
+  <img src="https://img.shields.io/badge/🪟-Windows%20Service-darkblue?style=for-the-badge&labelColor=darkblue">
 </a>
 
 <a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#common-commands">
-  <img src="https://img.shields.io/badge/💻-Common%20Commands-blue?style=for-the-badge&labelColor=blue">
+  <img src="https://img.shields.io/badge/💻-Common%20Commands-darkblue?style=for-the-badge&labelColor=darkblue">
 </a>
 
 <a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#web-dashboard">
-  <img src="https://img.shields.io/badge/📊-Web%20Dashboard-blue?style=for-the-badge&labelColor=blue">
+  <img src="https://img.shields.io/badge/📊-Web%20Dashboard-darkblue?style=for-the-badge&labelColor=darkblue">
 </a>
 
 </p>
@@ -65,15 +65,15 @@
 <p align="center">
 
 <a href="https://github.com/stylebending/win_event_engine/wiki">
-  <img src="https://img.shields.io/badge/📖-Documentation-blue?style=for-the-badge&labelColor=blue">
+  <img src="https://img.shields.io/badge/📖-Documentation-darkblue?style=for-the-badge&labelColor=darkblue">
 </a>
 
 <a href="https://github.com/stylebending/win_event_engine/wiki/Configuration-Reference">
-  <img src="https://img.shields.io/badge/⚙️-Configuration-blue?style=for-the-badge&labelColor=blue">
+  <img src="https://img.shields.io/badge/⚙️-Configuration-darkblue?style=for-the-badge&labelColor=darkblue">
 </a>
 
 <a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#lua-scripting">
-  <img src="https://img.shields.io/badge/🔧-Lua%20Scripting-blue?style=for-the-badge&labelColor=blue">
+  <img src="https://img.shields.io/badge/🔧-Lua%20Scripting-darkblue?style=for-the-badge&labelColor=darkblue">
 </a>
 
 </p>
