@@ -7,13 +7,13 @@ Welcome to the WinEventEngine documentation! This wiki contains everything you n
 A universal event automation system for Windows that monitors system events (file changes, window activity, process creation, registry modifications) and executes automated actions based on configurable rules.
 
 Automate everything: 
-- Play/pause media when focusing specific windows.
-- Auto commit changes to your config/dot files/folders.
-- Auto build/test an application under configurable conditions.
-- Get Discord/Slack/Telegram notifications for configurable events.
-- Write easy-to-learn Lua scripts to customize your everything.
-- Watch it all happen in real-time on the web dashboard.
-- Much more! Simple configuration, powerful results.
+- Play/pause media when focusing specific windows
+- Auto commit changes to your config/dot files/folders
+- Auto build/test an application under configurable conditions
+- Get Discord/Slack/Telegram notifications for configurable events
+- Write easy-to-learn Lua scripts to customize everything
+- Watch it all happen in real-time on the web dashboard
+- Much more! Simple configuration, powerful results
 
 ## Key Features
 
