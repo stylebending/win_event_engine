@@ -1,10 +1,18 @@
-<h3 align="center">Windows Event Automation Engine</h3>
+<p align="center"><img src="https://readme-typing-svg.herokuapp.com?font=Fira+Code&pause=1000&center=true&width=435&lines=WinEventEngine;Simple+Configuration;Powerful+Results" alt="WinEventEngine" /></p>
 
 <p align="center">
 
 <a href="https://www.rust-lang.org">
   <img src="https://img.shields.io/badge/Rust-darkorange?style=for-the-badge&logo=rust">
 </a>
+
+<a href="https://github.com/stylebending/win_event_engine/releases">
+  <img src="https://img.shields.io/github/actions/workflow/status/stylebending/win_event_engine/.github/workflows/release.yml?style=for-the-badge&color=darkgreen&logo=github&logoColor=white&label=Build&labelColor=darkgreen">
+</a>
+
+</p>
+
+<p align="center">
 
 <a href="https://github.com/stylebending/win_event_engine/releases">
   <img src="https://img.shields.io/github/v/release/stylebending/win_event_engine?style=for-the-badge&color=darkgreen&logo=git&logoColor=white&label=Release&labelColor=darkgreen">
@@ -18,11 +26,11 @@
 
 <p align="center">
 
-<a href="https://github.com/stylebending/win_event_engine/license.md">
+<a href="https://github.com/stylebending/win_event_engine/blob/main/LICENSE">
   <img src="https://img.shields.io/badge/📄-MIT%20License-darkblue?style=for-the-badge&labelColor=darkblue">
 </a>
 
-<a href="https://github.com/stylebending/win_event_engine/docs/contributing.md">
+<a href="https://github.com/stylebending/win_event_engine/blob/main/CONTRIBUTING.md">
   <img src="https://img.shields.io/badge/🪽-Contributing-darkblue?style=for-the-badge&labelColor=darkblue">
 </a>
 
@@ -48,22 +56,6 @@
 
 <p align="center">
 
-<a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#running-as-a-windows-service">
-  <img src="https://img.shields.io/badge/🪟-Windows%20Service-darkblue?style=for-the-badge&labelColor=darkblue">
-</a>
-
-<a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#common-commands">
-  <img src="https://img.shields.io/badge/💻-Common%20Commands-darkblue?style=for-the-badge&labelColor=darkblue">
-</a>
-
-<a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#web-dashboard">
-  <img src="https://img.shields.io/badge/📊-Web%20Dashboard-darkblue?style=for-the-badge&labelColor=darkblue">
-</a>
-
-</p>
-
-<p align="center">
-
 <a href="https://github.com/stylebending/win_event_engine/wiki">
   <img src="https://img.shields.io/badge/📖-Documentation-darkblue?style=for-the-badge&labelColor=darkblue">
 </a>
@@ -78,28 +70,40 @@
 
 </p>
 
+<p align="center">
+
+<a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#running-as-a-windows-service">
+  <img src="https://img.shields.io/badge/🪟-Windows%20Service-darkblue?style=for-the-badge&labelColor=darkblue">
+</a>
+
+<a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#common-commands">
+  <img src="https://img.shields.io/badge/💻-Common%20Commands-darkblue?style=for-the-badge&labelColor=darkblue">
+</a>
+
+<a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#web-dashboard">
+  <img src="https://img.shields.io/badge/📊-Web%20Dashboard-darkblue?style=for-the-badge&labelColor=darkblue">
+</a>
+
+</p>
+
 ## 📦 What is Win Event Engine?
 
-Win Event Engine is an event-driven automation framework for Windows that allows you to:
+Win Event Engine is an event-driven automation framework for Windows:
+- Play/pause media when focusing specific windows.
+- Auto commit changes to your config/dot files/folders.
+- Auto build/test an application under configurable conditions.
+- Get Discord/Slack/Telegram notifications for configurable events.
+- Write easy-to-learn Lua scripts to customize your everything.
+- Watch it all happen in real-time on the web dashboard.
+- Much more! Simple configuration, powerful results.
 
-- React to system events in real time
-- Automate workflows using Lua scripts
-- Monitor activity through a web dashboard
-- Run as a background Windows service
-- Extend behavior with custom event handlers
+## Key Features
 
-Automate everything: play/pause media when focusing specific windows, backup files while you work, get Discord/Slack/Telegram notifications for important events, auto-commit code changes, or write easy-to-learn Lua scripts to customize your workflow - like auto-organizing screenshots or tracking daily habits. Simple configuration, powerful results.
-
-## Features
-
-- **File System Watcher** - Monitor file creation, modification, deletion with pattern matching
-- **Window Event Monitor** - Track window focus, creation, destruction using Win32 API
-- **Process Monitor** - Kernel-level ETW process monitoring with real-time events (requires Administrator)
-- **Registry Monitor** - Kernel-level ETW registry monitoring with real-time events (requires Administrator)
-- **Rule Engine** - Pattern-based matching with composite AND/OR logic
-- **Lua Scripting** - Write custom actions in Lua without recompiling
-- **Web Dashboard** - Real-time monitoring via WebSocket at `http://127.0.0.1:9090`
-- **Production Ready** - Windows service support, structured logging, hot-reloading
+- **Event Monitoring**: File system, windows, processes, and registry
+- **Rule Engine**: Pattern-based matching with Lua scripting
+- **Web Dashboard**: Real-time monitoring at `http://localhost:9090`
+- **Windows Service**: Run as background service
+- **Plugin System**: Write custom actions in Lua
 
 ## First Time Setup (5 minutes)
 
@@ -326,10 +330,6 @@ cargo build --release -p engine
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
-
-## Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## Support
 
