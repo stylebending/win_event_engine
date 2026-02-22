@@ -24,6 +24,8 @@
 
 </p>
 
+<h3 align="center">Quick Navigation</h3>
+
 <p align="center">
 
 <a href="https://github.com/stylebending/win_event_engine/blob/main/LICENSE">
@@ -35,8 +37,6 @@
 </a>
 
 </p>
-
-<h3 align="center">Quick Navigation</h3>
 
 <p align="center">
 
