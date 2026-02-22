@@ -100,10 +100,10 @@ Win Event Engine is an event-driven automation framework for Windows:
 
 ## Support
 
-- 📖 [Documentation Wiki](https://github.com/stylebending/win_event_engine/wiki)
+- 📖 [Documentation Wiki](https://github.com/stylebending/win_event_engine/wiki) for all information
 - 💡 [Discussions](https://github.com/stylebending/win_event_engine/discussions) for feature requests and questions
 - 🐛 [Issue Tracker](https://github.com/stylebending/win_event_engine/issues) for bug reports and issues
-- See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines
+- 🔨 [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines
 
 ## License
 
