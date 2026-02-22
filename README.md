@@ -40,7 +40,7 @@
 
 <p align="center">
 
-<a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#features">
+<a href="https://github.com/stylebending/win_event_engine?tab=readme-ov-file#key-features">
   <img src="https://img.shields.io/badge/✨-Features-darkblue?style=for-the-badge&labelColor=darkblue">
 </a>
 
@@ -93,7 +93,7 @@ Win Event Engine is an event-driven automation framework for Windows:
 - Auto commit changes to your config/dot files/folders.
 - Auto build/test an application under configurable conditions.
 - Get Discord/Slack/Telegram notifications for configurable events.
-- Write easy-to-learn Lua scripts to customize your everything.
+- Write easy-to-learn Lua scripts to customize everything.
 - Watch it all happen in real-time on the web dashboard.
 - Much more! Simple configuration, powerful results.
 
