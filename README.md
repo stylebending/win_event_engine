@@ -2,17 +2,9 @@
 
 <p align="center">
 
-<a href="https://www.rust-lang.org">
-  <img src="https://img.shields.io/badge/Rust-darkorange?style=for-the-badge&logo=rust">
-</a>
-
 <a href="https://github.com/stylebending/win_event_engine/releases">
   <img src="https://img.shields.io/github/actions/workflow/status/stylebending/win_event_engine/.github/workflows/release.yml?style=for-the-badge&color=darkgreen&logo=github&logoColor=white&label=Build&labelColor=darkgreen">
 </a>
-
-</p>
-
-<p align="center">
 
 <a href="https://github.com/stylebending/win_event_engine/releases">
   <img src="https://img.shields.io/github/v/release/stylebending/win_event_engine?style=for-the-badge&color=darkgreen&logo=git&logoColor=white&label=Release&labelColor=darkgreen">
