@@ -84,7 +84,8 @@ Win Event Engine is an event-driven automation framework for Windows:
 - Play/pause media when focusing specific windows
 - Auto commit changes to your config/dot files/folders
 - Auto build/test an application under configurable conditions
-- Get Discord/Slack/Telegram notifications for configurable events
+- Get Webhook (Discord/Slack/Telegram/etc) notifications for configurable events
+- Send API requests for configurable conditions/events
 - Write easy-to-learn Lua scripts to customize everything
 - Watch it all happen in real-time on the web dashboard
 - Much more! Simple configuration, powerful results
@@ -102,20 +103,8 @@ Win Event Engine is an event-driven automation framework for Windows:
 - 📖 [Documentation Wiki](https://github.com/stylebending/win_event_engine/wiki)
 - 💡 [Discussions](https://github.com/stylebending/win_event_engine/discussions) for feature requests and questions
 - 🐛 [Issue Tracker](https://github.com/stylebending/win_event_engine/issues) for bug reports and issues
-
-## For Developers
-
-**Build from Source** (requires [Rust](https://rustup.rs/)):
-
-```bash
-git clone https://github.com/stylebending/win_event_engine.git
-cd win_event_engine
-cargo build --release -p engine
-# Executable: target/release/engine.exe
-```
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
+- See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License, see the [LICENSE](LICENSE) file for details.

@@ -10,7 +10,8 @@ Automate everything:
 - Play/pause media when focusing specific windows
 - Auto commit changes to your config/dot files/folders
 - Auto build/test an application under configurable conditions
-- Get Discord/Slack/Telegram notifications for configurable events
+- Get Webhook (Discord/Slack/Telegram/etc) notifications for configurable events
+- Send API requests for configurable conditions/events
 - Write easy-to-learn Lua scripts to customize everything
 - Watch it all happen in real-time on the web dashboard
 - Much more! Simple configuration, powerful results
